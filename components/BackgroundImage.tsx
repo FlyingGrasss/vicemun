@@ -11,7 +11,6 @@ export default function BackgroundImage() {
   if (pathname?.startsWith("/admin")) {
     return null;
   }
-  a;
 
   return (
     <div
