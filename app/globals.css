@@ -1,8 +1,11 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0B1A39;
+  --background: #3D2D4A;
   --foreground: #fff;
+  --color-accent: #D3A7CA;
+  --color-middle: #5F395E;
+  --color-warm: #C35E66;
 }
 
 @theme inline {
@@ -13,7 +16,8 @@
 }
 
 body {
-  background: var(--background);
+  background:
+    linear-gradient(180deg, #3D2D4A 0%, #5F395E 48%, #C35E66 100%) fixed;
   color: var(--foreground);
 }
 /* app/globals.css - Final styles */
@@ -31,7 +35,7 @@ body {
 
 .glassmorphism:hover {
   background: rgba(255, 255, 255, 0.15);
-  color: hsl(42, 72%, 52%);
+  color: var(--color-accent);
   box-shadow: 
     0 8px 32px rgba(0, 0, 0, 0.15),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
@@ -41,8 +45,8 @@ body {
   position: absolute;
   width: 4px;
   height: 4px;
-  background: hsl(42, 72%, 52%);
+  background: var(--color-accent);
   border-radius: 50%;
-  box-shadow: 0 0 10px hsl(42, 72%, 52%);
+  box-shadow: 0 0 10px var(--color-accent);
   will-change: transform, opacity;
 }

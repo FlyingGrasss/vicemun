@@ -6,7 +6,7 @@ import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: "Apply",
-  description: "Apply to be a part of BORNOVAMUN'26.",
+  description: "Apply to be a part of VICEMUN'26.",
 };
 
 const applications = [
@@ -21,7 +21,7 @@ const Apply = () => {
   return (
     <div className="min-h-screen py-20 px-4">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-6xl max-sm:text-4xl mb-16 text-center text-[hsl(42,72%,52%)] font-bold">
+        <h1 className="text-6xl max-sm:text-4xl mb-16 text-center text-[var(--color-accent)] font-bold">
           Apply Now
         </h1>
 
@@ -31,7 +31,7 @@ const Apply = () => {
               key={app.id}
               href={`/apply/${app.id}`}
               // Added max-w-[300px] for mobile to prevent full screen width images
-              className="group relative w-full max-w-[300px] sm:max-w-sm rounded-3xl overflow-hidden shadow-2xl transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_40px_-15px_hsl(42,72%,52%,0.3)]"
+              className="group relative w-full max-w-[300px] sm:max-w-sm rounded-3xl overflow-hidden shadow-2xl transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_40px_-15px_rgba(211,167,202,0.35)]"
             >
               {/* Background Image */}
               <div className="relative h-[400px] w-full">
@@ -41,15 +41,15 @@ const Apply = () => {
                   fill
                   className="object-cover transition-transform duration-700 group-hover:scale-110"
                 />
-                <div className="absolute inset-0 bg-linear-to-t from-[#0A1938] via-[#0A1938]/40 to-transparent opacity-90 transition-opacity duration-300" />
+                <div className="absolute inset-0 bg-linear-to-t from-[#3D2D4A] via-[#3D2D4A]/40 to-transparent opacity-90 transition-opacity duration-300" />
 
                 {/* Border effect */}
-                <div className="absolute inset-0 border-4 border-transparent group-hover:border-[hsl(42,72%,52%)] transition-colors duration-300 rounded-3xl z-20 pointer-events-none" />
+                <div className="absolute inset-0 border-4 border-transparent group-hover:border-[var(--color-accent)] transition-colors duration-300 rounded-3xl z-20 pointer-events-none" />
               </div>
 
               {/* Content */}
               <div className="absolute inset-0 flex flex-col justify-end p-8 z-10">
-                <h2 className="text-3xl font-bold text-white mb-2 group-hover:text-[hsl(42,72%,52%)] transition-colors">
+                <h2 className="text-3xl font-bold text-white mb-2 group-hover:text-[var(--color-accent)] transition-colors">
                   {app.title}
                 </h2>
                 <p className="text-gray-300 mb-6 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">

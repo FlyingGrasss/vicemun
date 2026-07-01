@@ -1,9 +1,52 @@
 // app/api/verify/[type]/route.ts
 
-import { supabase } from '@/lib/supabase';
+import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 import { google } from 'googleapis';
 import getMessage from '@/lib/getMessage';
+
+type DelegateMember = {
+  fullName?: string;
+  birthDate?: string;
+  nationalId?: string;
+  gender?: string;
+  committeePreferences?: string[];
+  englishLevel?: string;
+  dietaryPreferences?: string;
+  email?: string;
+  phoneNumber?: string;
+  city?: string;
+  grade?: string;
+  experience?: string;
+  motivationLetter?: string;
+  additionalInfo?: string;
+};
+
+type ApplicationPayload = {
+  email: string;
+  code: string;
+  lang?: 'en' | 'tr';
+  fullName?: string;
+  phoneNumber?: string;
+  nationalId?: string;
+  birthDate?: string;
+  gender?: string;
+  school?: string;
+  city?: string;
+  grade?: string;
+  englishLevel?: string;
+  committeePreferences?: string[];
+  experience?: string;
+  motivationLetter?: string;
+  camera?: string;
+  chairAnswer1?: string;
+  chairAnswer2?: string;
+  chairAnswer3?: string;
+  dietaryPreferences?: string;
+  additionalInfo?: string;
+  numberOfDelegates?: number;
+  delegates?: DelegateMember[];
+};
 
 const auth = new google.auth.GoogleAuth({
   credentials: JSON.parse(
@@ -37,7 +80,7 @@ export async function POST(
 ) {
   try {
     const { type } = await params;
-    const data = await request.json();
+    const data = (await request.json()) as ApplicationPayload;
     const { email, code, lang = 'en', ...formData } = data;
     const sheetId = getSheetId(type);
 
@@ -47,23 +90,25 @@ export async function POST(
         { status: 400 }
       );
 
-    const { data: codeData, error } = await supabase
-      .from('verification_codes')
-      .select('*')
-      .eq('email', email)
-      .eq('code', code)
-      .eq('application_type', type)
-      .gt('expires_at', new Date().toISOString())
-      .single();
+    const codeData = await prisma.verificationCode.findFirst({
+      where: {
+        email,
+        code,
+        applicationType: type,
+        expiresAt: {
+          gt: new Date(),
+        },
+      },
+    });
 
-    if (error || !codeData) {
+    if (!codeData) {
       return NextResponse.json(
         { message: getMessage(lang, 'invalid_code') },
         { status: 400 }
       );
     }
 
-    let values: any[][] = [];
+    let values: (string | number | undefined)[][] = [];
 
     if (type === 'delegation') {
       if (Array.isArray(formData.delegates)) {
@@ -75,7 +120,7 @@ export async function POST(
         ]);
 
         // 2. Add each Delegate Row
-        formData.delegates.forEach((d: any) => {
+        formData.delegates.forEach((d) => {
           values.push([
             d.fullName, // 1: Delegate Full Name
             d.birthDate, // 2: Birth Date
@@ -109,7 +154,7 @@ export async function POST(
         formData.grade
       ];
 
-      let specifics: any[] = [];
+      let specifics: (string | undefined)[] = [];
 
       if (type === 'delegate') {
         specifics = [
@@ -161,10 +206,9 @@ export async function POST(
       requestBody: { values }
     });
 
-    await supabase
-      .from('verification_codes')
-      .delete()
-      .eq('email', email);
+    await prisma.verificationCode.deleteMany({
+      where: { email },
+    });
 
     return NextResponse.json(
       {

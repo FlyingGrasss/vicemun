@@ -1,70 +1,23 @@
-// app/sitemap.ts
+import { CONFERENCE } from '@/lib/conference';
 import type { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const currentDate = new Date(); // Use a single date instance for consistency
+  const currentDate = new Date();
+  const routes = [
+    ["", "yearly", 1],
+    ["/secretariat", "weekly", 0.8],
+    ["/letters", "weekly", 0.7],
+    ["/committees", "monthly", 0.6],
+    ["/apply", "monthly", 0.5],
+    ["/apply/delegate", "weekly", 0.8],
+    ["/apply/delegation", "weekly", 0.8],
+    ["/apply/chair", "weekly", 0.8],
+  ] as const;
 
-  return [
-    {
-      url: 'https://bornovamun.org',
-      lastModified: currentDate,
-      changeFrequency: 'yearly',
-      priority: 1,
-    },
-    {
-      url: 'https://bornovamun.org/secretariat',
-      lastModified: currentDate,
-      changeFrequency: 'weekly',
-      priority: 0.8,
-    },
-    {
-      url: 'https://bornovamun.org/letters',
-      lastModified: currentDate,
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    },
-    {
-      url: 'https://bornovamun.org/committees',
-      lastModified: currentDate,
-      changeFrequency: 'monthly',
-      priority: 0.6,
-    },
-    {
-      url: 'https://bornovamun.org/apply',
-      lastModified: currentDate,
-      changeFrequency: 'monthly',
-      priority: 0.5,
-    },
-    // --- Specific Application Pages ---
-    {
-      url: 'https://bornovamun.org/apply/delegate',
-      lastModified: currentDate,
-      changeFrequency: 'weekly', // High priority during application period
-      priority: 0.8,
-    },
-    {
-      url: 'https://bornovamun.org/apply/press',
-      lastModified: currentDate,
-      changeFrequency: 'weekly', // High priority during application period
-      priority: 0.8,
-    },
-    {
-      url: 'https://bornovamun.org/apply/delegation', // Added 'delegation'
-      lastModified: currentDate,
-      changeFrequency: 'weekly',
-      priority: 0.8,
-    },
-    {
-      url: 'https://bornovamun.org/apply/chair', // Added 'chair'
-      lastModified: currentDate,
-      changeFrequency: 'weekly',
-      priority: 0.8,
-    },
-    {
-      url: 'https://bornovamun.org/apply/admin', // Added 'admin'
-      lastModified: currentDate,
-      changeFrequency: 'weekly',
-      priority: 0.8,
-    },
-  ];
+  return routes.map(([path, changeFrequency, priority]) => ({
+    url: `${CONFERENCE.siteUrl}${path}`,
+    lastModified: currentDate,
+    changeFrequency,
+    priority,
+  }));
 }

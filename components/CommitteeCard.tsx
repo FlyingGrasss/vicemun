@@ -1,6 +1,6 @@
 // components/CommitteeCard.tsx
 
-import Image from "next/image"
+import ContentImage from "@/components/ContentImage"
 import Link from "next/link"
 
 const Card = ({ 
@@ -13,13 +13,15 @@ const Card = ({
     imageUrl: string, 
     committeeName: string, 
     slug: string,
-    description?: any[],
+    description?: string,
     align?: 'left' | 'right'
 }) => {
   
-  const shortDesc = description 
-    ? description[0]?.children?.[0]?.text?.slice(0, 150) + (description[0]?.children?.[0]?.text?.length > 150 ? '...' : '')
-    : "";
+  const plainDescription = description?.replace(/[#*_`-]/g, "").trim() ?? "";
+  const shortDesc =
+    plainDescription.length > 150
+      ? `${plainDescription.slice(0, 150)}...`
+      : plainDescription;
 
   const isImageRight = align === 'right';
 
@@ -28,12 +30,12 @@ const Card = ({
       
       {/* Image Side - Unrestricted Aspect Ratio */}
       <div className="relative w-full md:w-1/2 flex justify-center group">
-        <Image 
-          src={`${imageUrl}?auto=format`} 
+        <ContentImage
+          src={imageUrl}
           alt={committeeName}
           width={800} 
           height={800} 
-          className="w-full h-auto object-contain rounded-3xl border-2 border-[hsl(42,72%,52%)] shadow-2xl transition-transform duration-700 group-hover:scale-105"
+          className="w-full h-auto object-contain rounded-3xl border-2 border-[var(--color-accent)] shadow-2xl transition-transform duration-700 group-hover:scale-105"
         />
       </div>
 
@@ -53,7 +55,7 @@ const Card = ({
                - If Image is Right (align='right'): Text is Left. Arrow points Right -> `flex-row` (Text then Arrow)
                - If Image is Left (align='left'): Text is Right. Arrow points Left -> `flex-row-reverse` (Arrow then Text)
             */}
-            <button className={`group glassmorphism text-lg cursor-pointer items-center transition-all duration-300 justify-center gap-3 inline-flex backdrop-blur-md rounded-full px-8 py-3 shadow-lg border border-white/20 hover:border-[hsl(42,72%,52%)] ${isImageRight ? 'flex-row' : 'flex-row-reverse'}`}>
+            <button className={`group glassmorphism text-lg cursor-pointer items-center transition-all duration-300 justify-center gap-3 inline-flex backdrop-blur-md rounded-full px-8 py-3 shadow-lg border border-white/20 hover:border-[var(--color-accent)] ${isImageRight ? 'flex-row' : 'flex-row-reverse'}`}>
                 <span>Explore</span>
                 <svg
                     width="20"
@@ -63,7 +65,7 @@ const Card = ({
                     xmlns="http://www.w3.org/2000/svg"
                     // If Image Left (reversed flex), arrow starts rotated 180 to point left.
                     // If Image Right (normal flex), arrow is normal to point right.
-                    className={`transition-transform duration-300 fill-white group-hover:fill-[hsl(42,72%,52%)] ${
+                    className={`transition-transform duration-300 fill-white group-hover:fill-[var(--color-accent)] ${
                         !isImageRight 
                         ? 'rotate-180 group-hover:-translate-x-2' // Pointing Left 
                         : 'group-hover:translate-x-2'              // Pointing Right

@@ -4,7 +4,7 @@ import Link from 'next/link'
 const NotFound = () => {
   return (
     <div className='flex h-screen max-sm:my-4 flex-col justify-center items-center min-[1800px]:gap-7 gap-5 max-sm:gap-3'>
-      <h1 className="text-4xl min-[1800px]:text-5xl max-sm:text-2xl text-center font-bold">We couldn't find the page you were looking for</h1>
+      <h1 className="text-4xl min-[1800px]:text-5xl max-sm:text-2xl text-center font-bold">We couldn&apos;t find the page you were looking for</h1>
       <Image 
         src={"/404 Not Found.gif"}
         alt="404 Not Found"
@@ -28,7 +28,7 @@ const NotFound = () => {
                 fillRule="evenodd"
                 clipRule="evenodd"
                 d="M14.7105 0.439344C14.1953 1.02511 14.1953 1.97487 14.7105 2.56064L19.4951 7.99997H1.56946C0.840735 7.99997 0.25 8.67155 0.25 9.49997C0.25 10.3284 0.840735 11 1.56946 11H19.4951L14.7105 16.4392C14.1953 17.0251 14.1953 17.9749 14.7105 18.5606C15.2258 19.1465 16.0614 19.1465 16.5765 18.5606L23.6136 10.5606C24.1288 9.97473 24.1288 9.02509 23.6136 8.43932L16.5765 0.439344C16.0614 -0.146448 15.2258 -0.146448 14.7105 0.439344Z"
-                className="fill-white group-hover:fill-[hsl(42,72%,52%)] transition-colors duration-300"
+                className="fill-white group-hover:fill-[var(--color-accent)] transition-colors duration-300"
               />
             </svg>
           </button>

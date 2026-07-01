@@ -1,5 +1,5 @@
 User-Agent: *
 Allow: /
-Disallow: /studio
+Disallow: /admin
 
-Sitemap: https://www.bornovamun.org/sitemap.xml
+Sitemap: https://vicemun.vercel.app/sitemap.xml

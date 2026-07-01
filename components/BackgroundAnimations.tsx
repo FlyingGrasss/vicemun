@@ -102,7 +102,7 @@ const BackgroundAnimations = () => {
     };
 
     // Stagger start
-    particles.forEach((particle, i) => {
+    particles.forEach((particle) => {
       // Use set timeout to space out their entry
       // Use set timeout to space out their entry
       setTimeout(() => animateParticle(particle, true), Math.random() * 100);

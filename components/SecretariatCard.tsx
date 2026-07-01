@@ -1,6 +1,6 @@
 // components/SecretariatCard.tsx
 
-import Image from "next/image"
+import ContentImage from "@/components/ContentImage"
 import Link from "next/link"
 
 const Card = ({ 
@@ -24,12 +24,12 @@ const Card = ({
       
       {/* Image Side */}
       <div className="relative w-full md:w-1/2 flex justify-center group">
-        <Image 
-          src={`${imageUrl}?auto=format`} 
+        <ContentImage
+          src={imageUrl}
           alt={secretariatName}
           width={800}
           height={800}
-          className="w-full h-auto object-contain rounded-3xl border-2 border-[hsl(42,72%,52%)] shadow-2xl transition-transform duration-700 group-hover:scale-105"
+          className="w-full h-auto object-contain rounded-3xl border-2 border-[var(--color-accent)] shadow-2xl transition-transform duration-700 group-hover:scale-105"
         />
       </div>
 
@@ -40,14 +40,14 @@ const Card = ({
         </h2>
         
         {role && (
-            <h3 className="text-2xl text-[hsl(42,72%,52%)] font-medium">
+            <h3 className="text-2xl text-[var(--color-accent)] font-medium">
                 {role}
             </h3>
         )}
 
         <div className="flex gap-4 mt-4">
             <Link href={`/secretariat/${slug}`}>
-                <button className={`group glassmorphism text-lg cursor-pointer items-center transition-all duration-300 justify-center gap-3 inline-flex backdrop-blur-md rounded-full px-8 py-3 shadow-lg border border-white/20 hover:border-[hsl(42,72%,52%)] ${isImageRight ? 'flex-row' : 'flex-row-reverse'}`}>
+                <button className={`group glassmorphism text-lg cursor-pointer items-center transition-all duration-300 justify-center gap-3 inline-flex backdrop-blur-md rounded-full px-8 py-3 shadow-lg border border-white/20 hover:border-[var(--color-accent)] ${isImageRight ? 'flex-row' : 'flex-row-reverse'}`}>
                     <span>Read More</span>
                     <svg
                         width="20"
@@ -55,7 +55,7 @@ const Card = ({
                         viewBox="0 0 24 19"
                         fill="none"
                         xmlns="http://www.w3.org/2000/svg"
-                        className={`transition-transform duration-300 fill-white group-hover:fill-[hsl(42,72%,52%)] ${
+                        className={`transition-transform duration-300 fill-white group-hover:fill-[var(--color-accent)] ${
                             !isImageRight 
                             ? 'rotate-180 group-hover:-translate-x-2' // Pointing Left
                             : 'group-hover:translate-x-2'              // Pointing Right

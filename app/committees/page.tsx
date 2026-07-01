@@ -3,24 +3,23 @@
 export const revalidate = 12000;
 
 import CommitteeCard from "@/components/CommitteeCard";
-import { COMMITTEES_QUERY } from "@/sanity/lib/queries";
-import { client } from "@/sanity/lib/client";
-import { CommitteeType } from "@/types";
+import { getPublishedCommittees } from "@/lib/content";
+import { CONFERENCE } from "@/lib/conference";
 import type { Metadata } from 'next';
 
 export const generateMetadata = async (): Promise<Metadata> => {
-  const allCommittees: CommitteeType[] = await client.fetch(COMMITTEES_QUERY);
+  const allCommittees = await getPublishedCommittees();
   const committeeNames = allCommittees.map(committee => committee.name).join(', ');
-  const description = `Explore the various committees at BORNOVAMUN'26: ${committeeNames}.`;
+  const description = `Explore the various committees at ${CONFERENCE.shortName}: ${committeeNames}.`;
 
   return {
     title: `Committees`,
     description: description,
-    keywords: ["BORNOVAMUN'26", "Committees", committeeNames, "MUN"],
+    keywords: [CONFERENCE.shortName, "Committees", committeeNames, "MUN"],
     openGraph: {
       title: `Committees`,
       description: description,
-      url: "https://www.bornovamun.org/committees",
+      url: `${CONFERENCE.siteUrl}/committees`,
     },
     twitter: {
       title: `Committees`,
@@ -31,8 +30,7 @@ export const generateMetadata = async (): Promise<Metadata> => {
 };
 
 const Committees = async () => {
-  const allCommittees = await client.fetch(COMMITTEES_QUERY);
-  const sortedCommittees = [...allCommittees].sort((a, b) => (a.id || Infinity) - (b.id || Infinity));
+  const allCommittees = await getPublishedCommittees();
 
   return (
     <div className="min-h-screen pb-20 overflow-hidden">
@@ -42,15 +40,12 @@ const Committees = async () => {
         </h1>
 
         <div className="flex flex-col items-center gap-24 md:gap-32">
-          {sortedCommittees.map((committee: CommitteeType, index) => (
+          {allCommittees.map((committee, index) => (
              <CommitteeCard
                 key={index}
                 imageUrl={committee.imageUrl}
                 committeeName={committee.name}
                 slug={committee.slug}
-                // Pass full object if you want to extract description inside the card, 
-                // but currently your query fetches everything so this works.
-                // Assuming description is fetched in COMMITTEES_QUERY (added in previous step)
                 description={committee.description}
                 align={index % 2 !== 0 ? 'right' : 'left'}
               />

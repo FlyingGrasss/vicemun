@@ -2,6 +2,8 @@
 
 "use client";
 
+/* eslint-disable react-hooks/set-state-in-effect */
+
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
@@ -118,10 +120,10 @@ const ApplicationForm = ({
   // 1. Load from Local Storage on Mount
   useEffect(() => {
     const savedData = localStorage.getItem(
-      `bornova_form_${applicationType}`
+      `vicemun_form_${applicationType}`
     );
     const savedDelegates = localStorage.getItem(
-      `bornova_form_delegates_${applicationType}`
+      `vicemun_form_delegates_${applicationType}`
     );
 
     if (savedData) {
@@ -157,12 +159,12 @@ const ApplicationForm = ({
     if (isLoaded) {
       const timeout = setTimeout(() => {
         localStorage.setItem(
-          `bornova_form_${applicationType}`,
+          `vicemun_form_${applicationType}`,
           JSON.stringify(formData)
         );
         if (applicationType === 'delegation' && delegates.length > 0) {
           localStorage.setItem(
-            `bornova_form_delegates_${applicationType}`,
+            `vicemun_form_delegates_${applicationType}`,
             JSON.stringify(delegates)
           );
         }
@@ -358,7 +360,7 @@ const ApplicationForm = ({
     setIsSubmitting(true);
     setModalMessage({ text: '', isError: false }); // Clear previous modal message
 
-    let verificationBody: any = {
+    let verificationBody: Record<string, unknown> = {
       code: verificationCode,
       lang: 'en',
       ...formData
@@ -393,13 +395,13 @@ const ApplicationForm = ({
       }
 
       // Clear local storage on success
-      localStorage.removeItem(`bornova_form_${applicationType}`);
+      localStorage.removeItem(`vicemun_form_${applicationType}`);
       localStorage.removeItem(
-        `bornova_form_delegates_${applicationType}`
+        `vicemun_form_delegates_${applicationType}`
       );
 
       window.location.href = '/success';
-    } catch (error) {
+    } catch {
       // Message already set in modalMessage state for display
     } finally {
       setIsSubmitting(false);
@@ -435,7 +437,7 @@ const ApplicationForm = ({
               : formData.fullName
           }
           onChange={handleInputChange}
-          className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[hsl(42,72%,52%)] transition-all"
+          className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
           required
         />
       </div>
@@ -451,7 +453,7 @@ const ApplicationForm = ({
               name="birthDate"
               value={formData.birthDate}
               onChange={handleInputChange}
-              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[hsl(42,72%,52%)] transition-all"
+              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
               required
             />
           </div>
@@ -464,7 +466,7 @@ const ApplicationForm = ({
               name="phoneNumber"
               value={formData.phoneNumber}
               onChange={handleInputChange}
-              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[hsl(42,72%,52%)] transition-all"
+              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
               required
             />
           </div>
@@ -482,7 +484,7 @@ const ApplicationForm = ({
           name="email"
           value={formData.email}
           onChange={handleInputChange}
-          className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[hsl(42,72%,52%)] transition-all"
+          className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
           required
         />
       </div>
@@ -498,7 +500,7 @@ const ApplicationForm = ({
               name="nationalId"
               value={formData.nationalId}
               onChange={handleInputChange}
-              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[hsl(42,72%,52%)] transition-all"
+              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
               required
             />
           </div>
@@ -510,7 +512,7 @@ const ApplicationForm = ({
               name="gender"
               value={formData.gender}
               onChange={handleInputChange}
-              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[hsl(42,72%,52%)] transition-all"
+              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
               required
             >
               <option value="">Select gender</option>
@@ -528,7 +530,7 @@ const ApplicationForm = ({
               name="school"
               value={formData.school}
               onChange={handleInputChange}
-              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[hsl(42,72%,52%)] transition-all"
+              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
               required
             />
           </div>
@@ -540,7 +542,7 @@ const ApplicationForm = ({
               name="grade"
               value={formData.grade}
               onChange={handleInputChange}
-              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[hsl(42,72%,52%)] transition-all"
+              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
               required
             >
               <option value="">Select grade</option>
@@ -561,7 +563,7 @@ const ApplicationForm = ({
               name="city"
               value={formData.city}
               onChange={handleInputChange}
-              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[hsl(42,72%,52%)] transition-all"
+              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
               required
             />
           </div>
@@ -589,7 +591,7 @@ const ApplicationForm = ({
           value={formData.motivationLetter}
           onChange={handleInputChange}
           rows={5}
-          className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white resize-none focus:outline-none focus:ring-2 focus:border-[hsl(42,72%,52%)] transition-all"
+          className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white resize-none focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
           required
         />
         <p
@@ -612,7 +614,7 @@ const ApplicationForm = ({
           value={formData.experience}
           onChange={handleInputChange}
           rows={4}
-          className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white resize-none focus:outline-none focus:ring-2 focus:border-[hsl(42,72%,52%)] transition-all"
+          className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white resize-none focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
         />
       </div>
 
@@ -630,7 +632,7 @@ const ApplicationForm = ({
                   onChange={(e) =>
                     handleCommitteeChange(idx, e.target.value)
                   }
-                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[hsl(42,72%,52%)] transition-all"
+                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
                   required={idx === 0}
                 >
                   <option value="">{idx + 1}. Choice</option>
@@ -660,7 +662,7 @@ const ApplicationForm = ({
                   name="chairAnswer1"
                   value={formData.chairAnswer1}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white resize-none focus:outline-none focus:ring-2 focus:border-[hsl(42,72%,52%)] transition-all"
+                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white resize-none focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
                   rows={4}
                 />
               </div>
@@ -673,7 +675,7 @@ const ApplicationForm = ({
                   name="chairAnswer3"
                   value={formData.chairAnswer3}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white resize-none focus:outline-none focus:ring-2 focus:border-[hsl(42,72%,52%)] transition-all"
+                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white resize-none focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
                   rows={4}
                 />
               </div>
@@ -686,7 +688,7 @@ const ApplicationForm = ({
                   name="chairAnswer2"
                   value={formData.chairAnswer2}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white resize-none focus:outline-none focus:ring-2 focus:border-[hsl(42,72%,52%)] transition-all"
+                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white resize-none focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
                   rows={4}
                 />
               </div>
@@ -700,7 +702,7 @@ const ApplicationForm = ({
                 name="englishLevel"
                 value={formData.englishLevel}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[hsl(42,72%,52%)] transition-all"
+                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
                 required
               >
                 <option value="">Select Level</option>
@@ -723,7 +725,7 @@ const ApplicationForm = ({
             name="camera"
             value={formData.camera}
             onChange={handleInputChange}
-            className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[hsl(42,72%,52%)] transition-all"
+            className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
           />
         </div>
       )}
@@ -736,7 +738,7 @@ const ApplicationForm = ({
           name="dietaryPreferences"
           value={formData.dietaryPreferences}
           onChange={handleInputChange}
-          className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[hsl(42,72%,52%)] transition-all"
+          className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
         >
           <option value="">None</option>
           <option value="Vegetarian">Vegetarian</option>
@@ -757,7 +759,7 @@ const ApplicationForm = ({
           value={formData.additionalInfo}
           onChange={handleInputChange}
           rows={3}
-          className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white resize-none focus:outline-none focus:ring-2 focus:border-[hsl(42,72%,52%)] transition-all"
+          className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white resize-none focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
         />
       </div>
     </div>
@@ -767,14 +769,14 @@ const ApplicationForm = ({
     <div className="min-h-screen px-4 my-14 max-sm:my-6 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-12">
-          <h1 className="text-6xl max-sm:text-3xl mt-16 mb-16 max-sm:mt-8 text-center text-[hsl(42,72%,52%)] font-bold">
+          <h1 className="text-6xl max-sm:text-3xl mt-16 mb-16 max-sm:mt-8 text-center text-[var(--color-accent)] font-bold">
             {titleMap[applicationType]}
           </h1>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
           <div className="bg-gray-800 rounded-xl p-8 shadow-2xl">
-            <h2 className="text-2xl font-semibold mb-6 text-[hsl(42,72%,52%)]">
+            <h2 className="text-2xl font-semibold mb-6 text-[var(--color-accent)]">
               {applicationType === 'delegation'
                 ? 'Delegation Information'
                 : 'Personal Information'}
@@ -792,13 +794,13 @@ const ApplicationForm = ({
                   value={formData.numberOfDelegates}
                   onChange={handleInputChange}
                   min="8"
-                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[hsl(42,72%,52%)] transition-all"
+                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
                   required
                 />
                 <button
                   type="button"
                   onClick={handleGenerateForms}
-                  className="mt-4 px-6 py-3 bg-[hsl(42,72%,52%)] text-[#0A1938] font-bold rounded-lg hover:bg-white transition-colors cursor-pointer"
+                  className="mt-4 px-6 py-3 bg-[var(--color-accent)] text-[#3D2D4A] font-bold rounded-lg hover:bg-white transition-colors cursor-pointer"
                 >
                   Generate Forms
                 </button>
@@ -808,7 +810,7 @@ const ApplicationForm = ({
 
           {applicationType !== 'delegation' && (
             <div className="bg-gray-800 rounded-xl p-8 shadow-2xl">
-              <h2 className="text-2xl font-semibold mb-6 text-[hsl(42,72%,52%)]">
+              <h2 className="text-2xl font-semibold mb-6 text-[var(--color-accent)]">
                 Application Details
               </h2>
               {detailFields}
@@ -821,7 +823,7 @@ const ApplicationForm = ({
               {delegates.map((d, i) => (
                 <div
                   key={i}
-                  className="bg-gray-800 rounded-xl p-8 shadow-xl border-l-4 border-[hsl(42,72%,52%)]"
+                  className="bg-gray-800 rounded-xl p-8 shadow-xl border-l-4 border-[var(--color-accent)]"
                 >
                   <h3 className="text-xl font-bold text-white mb-6">
                     Delegate #{i + 1}
@@ -837,7 +839,7 @@ const ApplicationForm = ({
                           e.target.value
                         )
                       }
-                      className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[hsl(42,72%,52%)] transition-all"
+                      className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
                       required
                     />
                     <input
@@ -851,7 +853,7 @@ const ApplicationForm = ({
                           e.target.value
                         )
                       }
-                      className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[hsl(42,72%,52%)] transition-all"
+                      className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
                       required
                     />
                     <input
@@ -865,7 +867,7 @@ const ApplicationForm = ({
                           e.target.value
                         )
                       }
-                      className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[hsl(42,72%,52%)] transition-all"
+                      className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
                       required
                     />
                     <input
@@ -878,7 +880,7 @@ const ApplicationForm = ({
                           e.target.value
                         )
                       }
-                      className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[hsl(42,72%,52%)] transition-all"
+                      className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
                       required
                     />
                     <input
@@ -892,7 +894,7 @@ const ApplicationForm = ({
                           e.target.value
                         )
                       }
-                      className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[hsl(42,72%,52%)] transition-all"
+                      className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
                       required
                     />
 
@@ -905,7 +907,7 @@ const ApplicationForm = ({
                           e.target.value
                         )
                       }
-                      className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[hsl(42,72%,52%)] transition-all"
+                      className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
                       required
                     >
                       <option value="">Select Gender *</option>
@@ -922,7 +924,7 @@ const ApplicationForm = ({
                           e.target.value
                         )
                       }
-                      className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[hsl(42,72%,52%)] transition-all"
+                      className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
                       required
                     >
                       <option value="">Select Grade *</option>
@@ -945,7 +947,7 @@ const ApplicationForm = ({
                           e.target.value
                         )
                       }
-                      className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[hsl(42,72%,52%)] transition-all"
+                      className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
                       required
                     />
 
@@ -966,7 +968,7 @@ const ApplicationForm = ({
                               e.target.value
                             )
                           }
-                          className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[hsl(42,72%,52%)] transition-all"
+                          className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
                           required={idx === 0}
                         >
                           <option value="">
@@ -989,7 +991,7 @@ const ApplicationForm = ({
                           e.target.value
                         )
                       }
-                      className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[hsl(42,72%,52%)] transition-all"
+                      className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
                       required
                     >
                       <option value="">English Level *</option>
@@ -1009,7 +1011,7 @@ const ApplicationForm = ({
                           e.target.value
                         )
                       }
-                      className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[hsl(42,72%,52%)] transition-all"
+                      className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
                     >
                       <option value="">Dietary Prefs</option>
                       <option value="Vegetarian">Vegetarian</option>
@@ -1035,7 +1037,7 @@ const ApplicationForm = ({
                             e.target.value
                           )
                         }
-                        className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white resize-none focus:outline-none focus:ring-2 focus:border-[hsl(42,72%,52%)] transition-all"
+                        className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white resize-none focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
                         rows={3}
                       />
                     </div>
@@ -1053,7 +1055,7 @@ const ApplicationForm = ({
                             e.target.value
                           )
                         }
-                        className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white resize-none focus:outline-none focus:ring-2 focus:border-[hsl(42,72%,52%)] transition-all"
+                        className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white resize-none focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
                         rows={4}
                         required
                       />
@@ -1077,7 +1079,7 @@ const ApplicationForm = ({
                           e.target.value
                         )
                       }
-                      className="md:col-span-2 w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white resize-none focus:outline-none focus:ring-2 focus:border-[hsl(42,72%,52%)] transition-all"
+                      className="md:col-span-2 w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white resize-none focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
                       rows={2}
                     />
                   </div>
@@ -1132,7 +1134,7 @@ const ApplicationForm = ({
                       16.5765 18.5606L23.6136 10.5606C24.1288 9.97473 24.1288
                       9.02509 23.6136 8.43932L16.5765 0.439344C16.0614
                       -0.146448 15.2258 -0.146448 14.7105 0.439344Z"
-                    className="fill-white group-hover:fill-[hsl(42,72%,52%)] transition-colors duration-300"
+                    className="fill-white group-hover:fill-[var(--color-accent)] transition-colors duration-300"
                   />
                 </svg>
               </button>
@@ -1141,13 +1143,13 @@ const ApplicationForm = ({
         </form>
 
         {mounted && verificationModalOpen && createPortal(
-          <div className="fixed inset-0 z-9999 flex items-center justify-center bg-[#0B1A39] h-screen w-screen touch-none overscroll-none">
-            <div className="bg-[#0A1938] border-2 border-[hsl(42,72%,52%)] p-8 rounded-3xl max-w-md w-[90%] shadow-2xl flex flex-col gap-4 animate-in fade-in zoom-in duration-300">
-              <h2 className="text-3xl font-bold text-[hsl(42,72%,52%)] text-center">
+          <div className="fixed inset-0 z-9999 flex items-center justify-center bg-[#3D2D4A] h-screen w-screen touch-none overscroll-none">
+            <div className="bg-[#3D2D4A] border-2 border-[var(--color-accent)] p-8 rounded-3xl max-w-md w-[90%] shadow-2xl flex flex-col gap-4 animate-in fade-in zoom-in duration-300">
+              <h2 className="text-3xl font-bold text-[var(--color-accent)] text-center">
                 Verify Email
               </h2>
               <p className="text-gray-300 text-center">
-                We've sent a verification code to{' '}
+                We&apos;ve sent a verification code to{' '}
                 <span className="text-white font-semibold">
                   {formData.email}
                 </span>
@@ -1173,7 +1175,7 @@ const ApplicationForm = ({
                   onChange={(e) =>
                     setVerificationCode(e.target.value)
                   }
-                  className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-xl text-white text-center text-2xl tracking-widest focus:border-[hsl(42,72%,52%)] focus:outline-none transition-colors"
+                  className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-xl text-white text-center text-2xl tracking-widest focus:border-[var(--color-accent)] focus:outline-none transition-colors"
                   placeholder="CODE"
                   required
                 />
@@ -1181,13 +1183,13 @@ const ApplicationForm = ({
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className={`w-full px-4 py-4 cursor-pointer bg-[hsl(42,72%,52%)] text-[#0A1938] font-bold text-xl rounded-xl hover:bg-white transition-all active:scale-95 ${
+                  className={`w-full px-4 py-4 cursor-pointer bg-[var(--color-accent)] text-[#3D2D4A] font-bold text-xl rounded-xl hover:bg-white transition-all active:scale-95 ${
                     isSubmitting ? 'opacity-70' : ''
                   }`}
                 >
                   {isSubmitting ? (
                     <span className="flex items-center justify-center gap-2">
-                      <span className="animate-spin h-5 w-5 border-2 border-[#0A1938] border-t-transparent rounded-full"></span>
+                      <span className="animate-spin h-5 w-5 border-2 border-[#3D2D4A] border-t-transparent rounded-full"></span>
                       Verifying...
                     </span>
                   ) : (

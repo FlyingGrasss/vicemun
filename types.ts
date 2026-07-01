@@ -2,22 +2,26 @@
 
 export type CommitteeType = {
     id: number;
+    sortOrder: number;
     name: string;
     slug: string;
     imageUrl: string;
-    description: any[]; // Portable Text content
+    description: string;
     documents?: {
         url: string;
         title: string;
     }[];
+    isPublished: boolean;
 };
 
 export type SecretariatType = {
     id: number;
+    sortOrder: number;
     name: string;
     role: string;
     slug: string;
     imageUrl: string;
-    bio: any[]; // Portable Text content
+    bio: string;
     instagram?: string;
+    isPublished: boolean;
 };

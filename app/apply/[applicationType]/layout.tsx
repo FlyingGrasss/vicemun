@@ -1,6 +1,7 @@
 // app/apply/[applicationType]/layout.tsx
 
 import type { Metadata } from 'next';
+import { CONFERENCE } from '@/lib/conference';
 
 type Props = {
   params: Promise<{ applicationType: string }>
@@ -12,10 +13,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   
   return {
     title: `Apply - ${type}`,
-    description: `Apply as a ${type} to be a part of BORNOVAMUN'26.`,
+    description: `Apply as a ${type} to be a part of VICEMUN'26.`,
     openGraph: {
       title: `Apply ${type}`,
-      url: `https://www.bornovamun.org/apply/${applicationType}`,
+      url: `${CONFERENCE.siteUrl}/apply/${applicationType}`,
     },
   };
 }

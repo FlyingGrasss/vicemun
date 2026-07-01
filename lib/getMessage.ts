@@ -1,5 +1,3 @@
-// lib/getMessage.ts
-
 interface MessageTemplates {
   en: {
     email_exists: string;
@@ -15,7 +13,10 @@ interface MessageTemplates {
   };
 }
 
-export default function getMessage(lang: 'en' | 'tr', key: keyof MessageTemplates['en']): string {
+export default function getMessage(
+  lang: 'en' | 'tr',
+  key: keyof MessageTemplates['en']
+): string {
   const messages: Record<'en' | 'tr', MessageTemplates['en']> = {
     en: {
       email_exists: 'You have already applied and been verified.',
@@ -24,11 +25,12 @@ export default function getMessage(lang: 'en' | 'tr', key: keyof MessageTemplate
       invalid_code: 'Invalid verification code. Please try again.'
     },
     tr: {
-      email_exists: 'Başvurunuz zaten yapılmış ve doğrulanmıştır.',
-      verification_email_sent: 'Doğrulama e-postası gönderildi. Lütfen gelen kutunuza ve spam bölümüne bakın.',
-      verification_successful: 'Doğrulama başarılı. Teşekkürler!',
-      invalid_code: 'Geçersiz doğrulama kodu. Lütfen tekrar deneyin.'
+      email_exists: 'Basvurunuz zaten yapilmis ve dogrulanmistir.',
+      verification_email_sent: 'Dogrulama e-postasi gonderildi. Lutfen gelen kutunuza ve spam bolumune bakin.',
+      verification_successful: 'Dogrulama basarili. Tesekkurler!',
+      invalid_code: 'Gecersiz dogrulama kodu. Lutfen tekrar deneyin.'
     }
   };
+
   return messages[lang][key];
 }

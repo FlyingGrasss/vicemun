@@ -3,31 +3,29 @@
 export const revalidate = 60;
 
 import SecretariatCard from "@/components/SecretariatCard";
-import { SECRETARIAT_QUERY } from "@/sanity/lib/queries";
-import { client } from "@/sanity/lib/client";
-import { SecretariatType } from "@/types";
+import { CONFERENCE } from "@/lib/conference";
+import { getPublishedSecretariat } from "@/lib/content";
 import type { Metadata } from 'next';
 
 export const generateMetadata = async (): Promise<Metadata> => {
-  const allSecretariat: SecretariatType[] = await client.fetch(SECRETARIAT_QUERY);
+  const allSecretariat = await getPublishedSecretariat();
   const names = allSecretariat.map(member => member.name).join(', ');
-  const description = `Meet the dedicated Secretariat of BORNOVAMUN'26.`;
+  const description = `Meet the dedicated Secretariat of ${CONFERENCE.shortName}.`;
 
   return {
     title: `Secretariat`,
     description: description,
-    keywords: ["BORNOVAMUN'26", "Secretariat", names],
+    keywords: [CONFERENCE.shortName, "Secretariat", names],
     openGraph: {
       title: `Secretariat`,
       description: description,
-      url: "https://www.bornovamun.org/secretariat",
+      url: `${CONFERENCE.siteUrl}/secretariat`,
     },
   };
 };
 
 const Secretariat = async () => {
-  const allSecretariat = await client.fetch(SECRETARIAT_QUERY);
-  const sortedSecretariat = [...allSecretariat].sort((a, b) => (a.id || Infinity) - (b.id || Infinity));
+  const allSecretariat = await getPublishedSecretariat();
 
   return (
     <div className="min-h-screen pb-20 overflow-hidden">
@@ -37,7 +35,7 @@ const Secretariat = async () => {
         </h1>
 
         <div className="flex flex-col items-center gap-24 md:gap-32">
-          {sortedSecretariat.map((secretariat: SecretariatType, index) => (
+          {allSecretariat.map((secretariat, index) => (
               <SecretariatCard
                 key={index}
                 imageUrl={secretariat.imageUrl}
