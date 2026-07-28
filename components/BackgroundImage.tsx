@@ -4,6 +4,7 @@
 
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { ASSETS, THEME } from "@/lib/conference";
 
 export default function BackgroundImage() {
   const pathname = usePathname();
@@ -18,8 +19,8 @@ export default function BackgroundImage() {
       style={{ height: "900px" }}
     >
       <Image
-        src={"/trees.jpg"}
-        alt="Tree background"
+        src={ASSETS.background}
+        alt={ASSETS.backgroundAlt}
         fill
         priority
         sizes="100vw"
@@ -27,7 +28,12 @@ export default function BackgroundImage() {
         quality={90}
       />
 
-      <div className="absolute inset-0 bg-linear-to-b from-[#3D2D4A]/95 via-[#5F395E]/92 to-[#C35E66]/80" />
+      <div
+        className="absolute inset-0"
+        style={{
+          background: `linear-gradient(180deg, ${THEME.background}F2 0%, ${THEME.middle}EB 52%, ${THEME.warm}CC 100%)`,
+        }}
+      />
     </div>
   );
 }

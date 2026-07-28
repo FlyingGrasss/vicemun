@@ -1,6 +1,7 @@
 "use client"
 
 import { usePathname } from "next/navigation"
+import { CONFERENCE, COPY } from "@/lib/conference"
 
 const Footer = () => {
   const pathname = usePathname()
@@ -11,14 +12,14 @@ const Footer = () => {
 
   return (
     <p className="text-white text-center min-[1800px]:text-xl">
-      &copy; 2026 VICEMUN, All Rights Reserved.{" "}
+      &copy; {CONFERENCE.year} {CONFERENCE.brandName}, {COPY.footer.rights}{" "}
       <br className="sm:hidden" />{" "}
       <a
-        href="https://emre-bozkurt.netlify.app"
+        href={CONFERENCE.organizer.creditUrl}
         target="_blank"
         className="underline cursor-pointer"
       >
-        Emre Bozkurt
+        {CONFERENCE.organizer.creditName}
       </a>
     </p>
   )

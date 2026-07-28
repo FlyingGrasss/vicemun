@@ -1,0 +1,327 @@
+{
+  "conference": {
+    "id": "vicemun26",
+    "brandName": "VICEMUN",
+    "shortName": "VICEMUN'26",
+    "displayName": "VICEMUN’26",
+    "fullName": "Vice Model United Nations Conference",
+    "sessionName": "First Official Session Of The Vice Model United Nations Conference",
+    "dates": "1-2-3 September 2026",
+    "startDateIso": "2026-09-01T00:00:00+03:00",
+    "year": 2026,
+    "hashtag": "#ViceCityWiseMinds",
+    "location": {
+      "city": "Izmir",
+      "country": "Turkey"
+    },
+    "siteUrl": "https://vicemun.vercel.app",
+    "locale": "en_US",
+    "keywords": [
+      "MUN",
+      "Vice Model United Nations",
+      "Model United Nations",
+      "Turkey MUN 2026",
+      "Izmir MUN"
+    ],
+    "organizer": {
+      "name": "VICEMUN Secretariat",
+      "creditName": "Emre Bozkurt",
+      "creditUrl": "https://emre-bozkurt.netlify.app"
+    }
+  },
+  "theme": {
+    "background": "#3D2D4A",
+    "middle": "#5F395E",
+    "accent": "#D3A7CA",
+    "warm": "#C35E66",
+    "foreground": "#FFFFFF"
+  },
+  "assets": {
+    "logo": "/logo.png",
+    "logoNoBackground": "/logo-nobg.png",
+    "favicon": "/favicon.ico",
+    "openGraph": "/icon.png",
+    "background": "/trees.jpg",
+    "backgroundAlt": "Tree background",
+    "notFound": "/404 Not Found.gif",
+    "notFoundAlt": "404 Not Found",
+    "mail": "/mail.svg"
+  },
+  "applications": [
+    {
+      "id": "delegate",
+      "enabled": true,
+      "title": "Delegate",
+      "formTitle": "Delegate Application",
+      "description": "Represent a nation and debate global issues.",
+      "image": "/applications/delegate.webp"
+    },
+    {
+      "id": "chair",
+      "enabled": true,
+      "title": "Chair",
+      "formTitle": "Chair Application",
+      "description": "Lead the debate and manage the committee.",
+      "image": "/applications/chair.jpg"
+    },
+    {
+      "id": "delegation",
+      "enabled": true,
+      "title": "Delegation",
+      "formTitle": "Delegation Application",
+      "description": "Apply as a school or group delegation.",
+      "image": "/applications/delegation.webp"
+    },
+    {
+      "id": "press",
+      "enabled": false,
+      "title": "Press",
+      "formTitle": "Press Application",
+      "description": "Capture the moments and report the news.",
+      "image": "/applications/press.webp"
+    },
+    {
+      "id": "admin",
+      "enabled": false,
+      "title": "Admin",
+      "formTitle": "Admin Application",
+      "description": "Ensure the smooth operation of the conference.",
+      "image": "/applications/admin.webp"
+    }
+  ],
+  "form": {
+    "minimumMotivationWords": 150,
+    "minimumDelegates": 8,
+    "committeePreferenceCount": 3,
+    "committees": [
+      "H-JCC",
+      "F-European Parliament",
+      "British Commonwealth Of 1949",
+      "INTERPOL",
+      "UNPEACE",
+      "DISEC",
+      "WHO"
+    ],
+    "questions": {
+      "delegate": {
+        "schoolName": "School Name *",
+        "fullName": "Full Name *",
+        "birthDate": "Birth Date *",
+        "phoneNumber": "Phone Number *",
+        "email": "Email Address *",
+        "nationalId": "National ID *",
+        "gender": "Gender *",
+        "school": "School Name *",
+        "grade": "Grade/Level *",
+        "city": "City *",
+        "motivationLetter": "Motivation Letter * (Min {minimumMotivationWords} Words)",
+        "motivationLetterPlaceholder": "Motivation Letter *",
+        "experience": "Experience",
+        "committeePreferences": "Committee Preferences (Top {committeePreferenceCount}) *",
+        "choice": "{number}. Choice",
+        "englishLevel": "English Level *",
+        "dietaryPreferences": "Dietary Preferences",
+        "additionalInfo": "Additional Info"
+      },
+      "chair": {
+        "schoolName": "School Name *",
+        "fullName": "Full Name *",
+        "birthDate": "Birth Date *",
+        "phoneNumber": "Phone Number *",
+        "email": "Email Address *",
+        "nationalId": "National ID *",
+        "gender": "Gender *",
+        "school": "School Name *",
+        "grade": "Grade/Level *",
+        "city": "City *",
+        "motivationLetter": "Motivation Letter * (Min {minimumMotivationWords} Words)",
+        "motivationLetterPlaceholder": "Motivation Letter *",
+        "experience": "Experience",
+        "committeePreferences": "Committee Preferences (Top {committeePreferenceCount}) *",
+        "choice": "{number}. Choice",
+        "chairAnswer1": "Case: Imagine that you are in the last session, and there are 2 different resolution papers, and none of them are finished nor qualified enough to be voted upon. There is literally no time to merge them, nor finish them. What would you do in this situation to stop committee from failing? (GA Only)",
+        "chairAnswer3": "What should a complete directive include? (Crisis Only)",
+        "chairAnswer2": "Please explain how a regular committee proceed while including the essential motions",
+        "englishLevel": "English Level *",
+        "dietaryPreferences": "Dietary Preferences",
+        "additionalInfo": "Additional Info"
+      },
+      "delegation": {
+        "schoolName": "School Name *",
+        "contactEmail": "Contact Email *",
+        "numberOfDelegates": "Number of Delegates * (Min {minimumDelegates})",
+        "delegate": "Delegate #{number}",
+        "delegateFullName": "Full Name *",
+        "delegateEmail": "Email *",
+        "delegatePhoneNumber": "Phone *",
+        "delegateNationalId": "National ID *",
+        "delegateBirthDate": "Birth Date *",
+        "delegateGender": "Gender *",
+        "delegateGrade": "Grade *",
+        "delegateCity": "City *",
+        "delegateCommitteePreferences": "Committee Preferences *",
+        "choice": "{number}. Choice",
+        "delegateEnglishLevel": "English Level *",
+        "delegateDietaryPreferences": "Dietary Prefs",
+        "delegateExperience": "Experience",
+        "delegateMotivationLetter": "Motivation Letter * (Min {minimumMotivationWords} Words)",
+        "delegateMotivationLetterPlaceholder": "Motivation Letter *",
+        "delegateAdditionalInfo": "Additional Info",
+        "motivationLetter": "Motivation Letter * (Min {minimumMotivationWords} Words)",
+        "experience": "Experience",
+        "committeePreferences": "Committee Preferences (Top {committeePreferenceCount}) *"
+      },
+      "press": {
+        "schoolName": "School Name *",
+        "fullName": "Full Name *",
+        "birthDate": "Birth Date *",
+        "phoneNumber": "Phone Number *",
+        "email": "Email Address *",
+        "nationalId": "National ID *",
+        "gender": "Gender *",
+        "school": "School Name *",
+        "grade": "Grade/Level *",
+        "city": "City *",
+        "motivationLetter": "Motivation Letter * (Min {minimumMotivationWords} Words)",
+        "motivationLetterPlaceholder": "Motivation Letter *",
+        "experience": "Experience",
+        "committeePreferences": "Committee Preferences (Top {committeePreferenceCount}) *",
+        "camera": "Camera Model",
+        "dietaryPreferences": "Dietary Preferences",
+        "additionalInfo": "Additional Info"
+      },
+      "admin": {
+        "schoolName": "School Name *",
+        "fullName": "Full Name *",
+        "birthDate": "Birth Date *",
+        "phoneNumber": "Phone Number *",
+        "email": "Email Address *",
+        "nationalId": "National ID *",
+        "gender": "Gender *",
+        "school": "School Name *",
+        "grade": "Grade/Level *",
+        "city": "City *",
+        "motivationLetter": "Motivation Letter * (Min {minimumMotivationWords} Words)",
+        "motivationLetterPlaceholder": "Motivation Letter *",
+        "experience": "Experience",
+        "committeePreferences": "Committee Preferences (Top {committeePreferenceCount}) *",
+        "dietaryPreferences": "Dietary Preferences",
+        "additionalInfo": "Additional Info"
+      }
+    },
+    "labels": {
+      "delegationInformation": "Delegation Information",
+      "personalInformation": "Personal Information",
+      "applicationDetails": "Application Details",
+      "generateForms": "Generate Forms",
+      "verifyEmail": "Verify Email",
+      "verificationCodePlaceholder": "CODE",
+      "verifyCode": "Verify Code",
+      "verifying": "Verifying...",
+      "submit": "Submit Application",
+      "submitting": "Submitting..."
+    },
+    "placeholders": {
+      "selectGender": "Select gender",
+      "selectGenderRequired": "Select Gender *",
+      "selectGrade": "Select grade",
+      "selectGradeRequired": "Select Grade *",
+      "selectEnglishLevel": "Select Level"
+    },
+    "options": {
+      "gender": [
+        { "value": "Male", "label": "Male" },
+        { "value": "Female", "label": "Female" },
+        { "value": "Other", "label": "Other" }
+      ],
+      "grade": [
+        { "value": "Preparation Grade", "label": "Preparation" },
+        { "value": "9th Grade", "label": "9th Grade" },
+        { "value": "10th Grade", "label": "10th Grade" },
+        { "value": "11th Grade", "label": "11th Grade" },
+        { "value": "12th Grade", "label": "12th Grade" },
+        { "value": "Graduate", "label": "Graduate" }
+      ],
+      "englishLevel": [
+        { "value": "Beginner", "label": "Beginner" },
+        { "value": "Intermediate", "label": "Intermediate" },
+        { "value": "Advanced", "label": "Advanced" },
+        { "value": "Native", "label": "Native" }
+      ],
+      "dietaryPreferences": [
+        { "value": "Vegetarian", "label": "Vegetarian" },
+        { "value": "Vegan", "label": "Vegan" },
+        { "value": "Halal", "label": "Halal" },
+        { "value": "Kosher", "label": "Kosher" },
+        { "value": "Gluten-free", "label": "Gluten-free" },
+        { "value": "Dairy-free", "label": "Dairy-free" }
+      ]
+    },
+    "messages": {
+      "minimumDelegates": "Minimum number of delegates is {minimumDelegates}",
+      "motivationTooShort": "Motivation letter must be at least {minimumMotivationWords} words.",
+      "delegateMotivationTooShort": "Delegate #{number}'s motivation letter must be at least {minimumMotivationWords} words.",
+      "verificationSent": "We've sent a verification code to",
+      "selectNone": "None",
+      "responses": {
+        "en": {
+          "email_exists": "You have already applied and been verified.",
+          "verification_email_sent": "Verification email sent. Please check your inbox and spam.",
+          "verification_successful": "Verification successful. Thank you!",
+          "invalid_code": "Invalid verification code. Please try again."
+        },
+        "tr": {
+          "email_exists": "Basvurunuz zaten yapilmis ve dogrulanmistir.",
+          "verification_email_sent": "Dogrulama e-postasi gonderildi. Lutfen gelen kutunuza ve spam bolumune bakin.",
+          "verification_successful": "Dogrulama basarili. Tesekkurler!",
+          "invalid_code": "Gecersiz dogrulama kodu. Lutfen tekrar deneyin."
+        }
+      }
+    }
+  },
+  "copy": {
+    "navigation": {
+      "home": "Home",
+      "letters": "Letters",
+      "secretariat": "Secretariat",
+      "committees": "Committees",
+      "apply": "Apply"
+    },
+    "home": {
+      "applyButton": "Apply Now"
+    },
+    "pages": {
+      "applyTitle": "Apply Now",
+      "applicationFormLink": "Application Form",
+      "committeesTitle": "Committees",
+      "secretariatTitle": "Secretariat",
+      "successTitle": "Success!",
+      "successMessage": "Thank you, we have received your application.",
+      "homeButton": "Home",
+      "notFoundTitle": "We couldn't find the page you were looking for",
+      "documentsTitle": "Study Guides & Documents"
+    },
+    "letters": {
+      "titlePrefix": "Letter From The",
+      "titleHighlight": "Secretary General",
+      "opening": "Dear Participants",
+      "paragraphs": [
+        "It is a great pleasure to invite you to {sessionName}. On {dates}, delegates will come together to debate, negotiate, and approach global issues through diplomacy and critical thinking.",
+        "Our team is preparing {shortName} with the goal of creating a serious, welcoming, and memorable Model United Nations experience. We look forward to seeing thoughtful debate, strong research, and wise minds in every committee."
+      ]
+    },
+    "footer": {
+      "rights": "All Rights Reserved."
+    },
+    "metadata": {
+      "applyDescription": "Apply to be a part of {shortName}.",
+      "applicationDescription": "Apply as a {type} to be a part of {shortName}.",
+      "committeesDescription": "Explore the various committees at {shortName}: {committeeNames}.",
+      "secretariatDescription": "Meet the dedicated Secretariat of {shortName}.",
+      "committeeDetailDescription": "Details and study guides for the {committeeName} committee.",
+      "secretariatDetailDescription": "Meet {memberName}, {role} at {shortName}.",
+      "lettersDescription": "Read the official letters related to {shortName}.",
+      "successDescription": "Your application has been successfully received."
+    }
+  }
+}

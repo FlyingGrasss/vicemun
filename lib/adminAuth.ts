@@ -1,12 +1,13 @@
 import { createHmac, timingSafeEqual } from "crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { CONFERENCE } from "@/lib/conference";
 
-const COOKIE_NAME = "vicemun_admin";
+const COOKIE_NAME = `${CONFERENCE.id}_admin`;
 const SESSION_TTL_MS = 1000 * 60 * 60 * 12;
 
 function getSecret() {
-  return process.env.AUTH_SECRET ?? "vicemun-dev-only-auth-secret";
+  return process.env.AUTH_SECRET ?? `${CONFERENCE.id}-dev-only-auth-secret`;
 }
 
 function sign(value: string) {

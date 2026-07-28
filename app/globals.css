@@ -1,11 +1,11 @@
 @import "tailwindcss";
 
 :root {
-  --background: #3D2D4A;
+  --background: #000;
   --foreground: #fff;
-  --color-accent: #D3A7CA;
-  --color-middle: #5F395E;
-  --color-warm: #C35E66;
+  --color-accent: #fff;
+  --color-middle: #000;
+  --color-warm: #000;
 }
 
 @theme inline {
@@ -17,7 +17,7 @@
 
 body {
   background:
-    linear-gradient(180deg, #3D2D4A 0%, #5F395E 48%, #C35E66 100%) fixed;
+    linear-gradient(180deg, var(--background) 0%, var(--color-middle) 48%, var(--color-warm) 100%) fixed;
   color: var(--foreground);
 }
 /* app/globals.css - Final styles */

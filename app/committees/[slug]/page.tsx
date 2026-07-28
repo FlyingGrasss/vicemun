@@ -4,6 +4,7 @@ import ContentImage from "@/components/ContentImage";
 import RichText from "@/components/RichText";
 import { getPublishedCommittee, getPublishedCommittees } from "@/lib/content";
 import { notFound } from "next/navigation";
+import { COPY, formatConferenceText } from "@/lib/conference";
 import type { Metadata } from 'next';
 
 export async function generateStaticParams() {
@@ -21,7 +22,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   
   return {
     title: committee.name,
-    description: `Details and study guides for the ${committee.name} committee.`,
+    description: formatConferenceText(COPY.metadata.committeeDetailDescription, {
+      committeeName: committee.name,
+    }),
     openGraph: {
       title: committee.name,
       images: [committee.imageUrl],
@@ -59,7 +62,7 @@ const CommitteePage = async ({ params }: { params: Promise<{ slug: string }> }) 
 
             {Array.isArray(committee.documents) && committee.documents.length > 0 && (
                 <div>
-                    <h3 className="text-2xl font-bold text-white mb-4">Study Guides & Documents</h3>
+                    <h3 className="text-2xl font-bold text-white mb-4">{COPY.pages.documentsTitle}</h3>
                     <div className="grid gap-4">
                         {committee.documents.map((doc, i) => {
                           if (

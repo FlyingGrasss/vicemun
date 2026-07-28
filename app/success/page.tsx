@@ -2,17 +2,18 @@
 
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { CONFERENCE, COPY } from '@/lib/conference';
 
 export const metadata: Metadata = {
-  title: "Application Successful | VICEMUN'26",
-  description: "Your application has been successfully received.",
+  title: `Application Successful | ${CONFERENCE.displayName}`,
+  description: COPY.metadata.successDescription,
   robots: "noindex", // Don't index success page
 };
 
 const Success = () => {
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="bg-[#3D2D4A] border border-[var(--color-accent)] rounded-3xl p-10 max-w-2xl w-full text-center shadow-2xl relative overflow-hidden">
+      <div className="bg-[var(--background)] border border-[var(--color-accent)] rounded-3xl p-10 max-w-2xl w-full text-center shadow-2xl relative overflow-hidden">
         
         {/* Background Glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-32 bg-[var(--color-accent)] opacity-20 blur-[100px]" />
@@ -36,16 +37,16 @@ const Success = () => {
             </div>
             
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-                Success!
+                {COPY.pages.successTitle}
             </h1>
             <p className="text-gray-300 text-xl">
-                Thank you, we have received your application.
+                {COPY.pages.successMessage}
             </p>
         </div>
 
         <Link href="/" className="inline-block relative z-10">
             <button className="group glassmorphism text-lg cursor-pointer items-center transition-all duration-300 justify-center gap-3 inline-flex backdrop-blur-md rounded-full px-8 py-3 shadow-lg hover:border-[var(--color-accent)]">
-                Home
+                {COPY.pages.homeButton}
                 <svg
                     width="24"
                     height="19"

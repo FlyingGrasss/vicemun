@@ -2,15 +2,14 @@
 
 import { notFound } from 'next/navigation';
 import ApplicationForm from '@/components/ApplicationForm';
+import { APPLICATIONS } from '@/lib/conference';
 
 // Static generation definition (Server-side)
 export async function generateStaticParams() {
   return [
-    { applicationType: 'delegate' },
-    //{ applicationType: 'press' },
-    { applicationType: 'chair' },
-    //{ applicationType: 'admin' },
-    { applicationType: 'delegation' },
+    ...APPLICATIONS.filter((application) => application.enabled).map((application) => ({
+      applicationType: application.id,
+    })),
   ];
 }
 
@@ -25,7 +24,9 @@ export default async function Page({ params }: PageProps) {
   const { applicationType } = await params;
 
   // Double check valid types
-  const validTypes = ['delegate', 'chair', 'delegation'];
+  const validTypes = APPLICATIONS.filter((application) => application.enabled).map(
+    (application) => application.id
+  );
   if (!validTypes.includes(applicationType)) {
     notFound();
   }

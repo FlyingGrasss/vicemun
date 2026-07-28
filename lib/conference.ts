@@ -1,17 +1,42 @@
-export const CONFERENCE = {
-  shortName: "VICEMUN'26",
-  brandName: "VICEMUN",
-  fullName: "Vice Model United Nations Conference",
-  sessionName: "First Official Session Of The Vice Model United Nations Conference",
-  dates: "7-8-9 August 2026",
-  startDateIso: "2026-08-07T00:00:00+03:00",
-  hashtag: "#ViceCityWiseMinds",
-  siteUrl: process.env.NEXT_PUBLIC_SITE_URL ?? "https://vicemun.vercel.app",
-};
+import conferenceConfig from "@/config/conference.json";
 
-export const THEME = {
-  top: "#3D2D4A",
-  middle: "#5F395E",
-  logo: "#D3A7CA",
-  bottom: "#C35E66",
-};
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? conferenceConfig.conference.siteUrl;
+
+export const CONFERENCE = {
+  ...conferenceConfig.conference,
+  siteUrl,
+} as const;
+
+export const THEME = conferenceConfig.theme;
+export const ASSETS = conferenceConfig.assets;
+export const APPLICATIONS = conferenceConfig.applications;
+export const FORM = conferenceConfig.form;
+export const COPY = conferenceConfig.copy;
+
+export function getApplicationQuestions(type: string) {
+  const questions = conferenceConfig.form.questions as Record<
+    string,
+    Record<string, string>
+  >;
+
+  return questions[type] ?? questions.delegate;
+}
+
+export function formatConferenceText(
+  value: string,
+  replacements: Record<string, string | number>
+) {
+  return Object.entries(replacements).reduce(
+    (text, [key, replacement]) => text.replaceAll(`{${key}}`, String(replacement)),
+    value
+  );
+}
+
+export function formatFormText(value: string, extra: Record<string, string | number> = {}) {
+  return formatConferenceText(value, {
+    minimumMotivationWords: FORM.minimumMotivationWords,
+    minimumDelegates: FORM.minimumDelegates,
+    committeePreferenceCount: FORM.committeePreferenceCount,
+    ...extra,
+  });
+}

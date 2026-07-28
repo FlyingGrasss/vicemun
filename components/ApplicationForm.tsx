@@ -6,6 +6,13 @@
 
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import {
+  APPLICATIONS,
+  CONFERENCE,
+  FORM,
+  getApplicationQuestions,
+  formatFormText,
+} from '@/lib/conference';
 
 // --- Interfaces ---
 interface FormData {
@@ -38,15 +45,7 @@ interface FormData {
   chairAnswer3?: string;
 }
 
-const COMMITTEES = [
-  'H-JCC',
-  'F-European Parliament',
-  'British Commonwealth Of 1949',
-  'INTERPOL',
-  'UNPEACE',
-  'DISEC',
-  'WHO'
-];
+const COMMITTEES = FORM.committees;
 
 const initialFormState: FormData = {
   fullName: '',
@@ -60,12 +59,12 @@ const initialFormState: FormData = {
   city: '',
   motivationLetter: '',
   experience: '',
-  committeePreferences: ['', '', ''],
+  committeePreferences: Array(FORM.committeePreferenceCount).fill(''),
   additionalInfo: '',
   englishLevel: '',
   dietaryPreferences: '',
   camera: '',
-  numberOfDelegates: 8,
+  numberOfDelegates: FORM.minimumDelegates,
   chairAnswer1: '',
   chairAnswer2: '',
   chairAnswer3: ''
@@ -93,6 +92,9 @@ const ApplicationForm = ({
 }: {
   applicationType: string;
 }) => {
+  const questions = getApplicationQuestions(applicationType);
+  const storageKey = `${CONFERENCE.id}_form_${applicationType}`;
+  const delegatesStorageKey = `${CONFERENCE.id}_form_delegates_${applicationType}`;
   const [formData, setFormData] = useState<FormData>(initialFormState);
   const [delegates, setDelegates] = useState<DelegateMember[]>([]);
   const [formsGenerated, setFormsGenerated] = useState(false);
@@ -120,10 +122,10 @@ const ApplicationForm = ({
   // 1. Load from Local Storage on Mount
   useEffect(() => {
     const savedData = localStorage.getItem(
-      `vicemun_form_${applicationType}`
+      storageKey
     );
     const savedDelegates = localStorage.getItem(
-      `vicemun_form_delegates_${applicationType}`
+      delegatesStorageKey
     );
 
     if (savedData) {
@@ -132,7 +134,7 @@ const ApplicationForm = ({
         setFormData(parsed);
         // If delegation forms were previously generated, restore that state
         if (
-          parsed.numberOfDelegates >= 8 &&
+          parsed.numberOfDelegates >= FORM.minimumDelegates &&
           applicationType === 'delegation'
         ) {
           setFormsGenerated(true);
@@ -152,26 +154,26 @@ const ApplicationForm = ({
     }
 
     setIsLoaded(true);
-  }, [applicationType]);
+  }, [applicationType, delegatesStorageKey, storageKey]);
 
   // 2. Save to Local Storage on Change (Debounced)
   useEffect(() => {
     if (isLoaded) {
       const timeout = setTimeout(() => {
         localStorage.setItem(
-          `vicemun_form_${applicationType}`,
+          storageKey,
           JSON.stringify(formData)
         );
         if (applicationType === 'delegation' && delegates.length > 0) {
           localStorage.setItem(
-            `vicemun_form_delegates_${applicationType}`,
+            delegatesStorageKey,
             JSON.stringify(delegates)
           );
         }
       }, 500); // 500ms debounce
       return () => clearTimeout(timeout);
     }
-  }, [formData, delegates, applicationType, isLoaded]);
+  }, [formData, delegates, applicationType, isLoaded, delegatesStorageKey, storageKey]);
 
   // --- Handlers ---
 
@@ -198,9 +200,9 @@ const ApplicationForm = ({
   };
 
   const handleGenerateForms = () => {
-    if (formData.numberOfDelegates < 8) {
+    if (formData.numberOfDelegates < FORM.minimumDelegates) {
       setMainPageMessage({
-        text: 'Minimum number of delegates is 8',
+        text: formatFormText(FORM.messages.minimumDelegates),
         isError: true
       });
       return;
@@ -227,7 +229,7 @@ const ApplicationForm = ({
       city: '',
       motivationLetter: '',
       experience: '',
-      committeePreferences: ['', '', ''],
+      committeePreferences: Array(FORM.committeePreferenceCount).fill(''),
       additionalInfo: '',
       englishLevel: '',
       dietaryPreferences: ''
@@ -274,9 +276,9 @@ const ApplicationForm = ({
     // Explicit Chair Validation for Word Count
     // Word Count Validation
     if (applicationType !== 'delegation') {
-      if (getWordCount(formData.motivationLetter) < 150) {
+      if (getWordCount(formData.motivationLetter) < FORM.minimumMotivationWords) {
         setMainPageMessage({
-          text: 'Motivation letter must be at least 150 words.',
+          text: formatFormText(FORM.messages.motivationTooShort),
           isError: true
         });
         setIsSubmitting(false);
@@ -286,9 +288,11 @@ const ApplicationForm = ({
     } else {
       // Validate all delegates
       for (let i = 0; i < delegates.length; i++) {
-        if (getWordCount(delegates[i].motivationLetter) < 150) {
+        if (getWordCount(delegates[i].motivationLetter) < FORM.minimumMotivationWords) {
           setMainPageMessage({
-            text: `Delegate #${i + 1}'s motivation letter must be at least 150 words.`,
+            text: formatFormText(FORM.messages.delegateMotivationTooShort, {
+              number: i + 1,
+            }),
             isError: true
           });
           setIsSubmitting(false);
@@ -395,10 +399,8 @@ const ApplicationForm = ({
       }
 
       // Clear local storage on success
-      localStorage.removeItem(`vicemun_form_${applicationType}`);
-      localStorage.removeItem(
-        `vicemun_form_delegates_${applicationType}`
-      );
+      localStorage.removeItem(storageKey);
+      localStorage.removeItem(delegatesStorageKey);
 
       window.location.href = '/success';
     } catch {
@@ -410,21 +412,17 @@ const ApplicationForm = ({
 
   // --- Render Parts ---
 
-  const titleMap: Record<string, string> = {
-    delegate: "Delegate Application",
-    press: "Press Application",
-    chair: "Chair Application",
-    admin: "Admin Application",
-    delegation: "Delegation Application"
-  };
+  const applicationTitle =
+    APPLICATIONS.find((application) => application.id === applicationType)
+      ?.formTitle ?? applicationType;
 
   const commonFields = (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div>
         <label className="block text-white text-sm font-medium mb-2">
           {applicationType === 'delegation'
-            ? 'School Name *'
-            : 'Full Name *'}
+            ? questions.schoolName
+            : questions.fullName}
         </label>
         <input
           type="text"
@@ -446,7 +444,7 @@ const ApplicationForm = ({
         <>
           <div>
             <label className="block text-white text-sm font-medium mb-2">
-              Birth Date *
+              {questions.birthDate}
             </label>
             <input
               type="date"
@@ -459,7 +457,7 @@ const ApplicationForm = ({
           </div>
           <div>
             <label className="block text-white text-sm font-medium mb-2">
-              Phone Number *
+              {questions.phoneNumber}
             </label>
             <input
               type="tel"
@@ -476,8 +474,8 @@ const ApplicationForm = ({
       <div>
         <label className="block text-white text-sm font-medium mb-2">
           {applicationType === 'delegation'
-            ? 'Contact Email *'
-            : 'Email Address *'}
+            ? questions.contactEmail
+            : questions.email}
         </label>
         <input
           type="email"
@@ -493,7 +491,7 @@ const ApplicationForm = ({
         <>
           <div>
             <label className="block text-white text-sm font-medium mb-2">
-              National ID *
+              {questions.nationalId}
             </label>
             <input
               type="text"
@@ -506,7 +504,7 @@ const ApplicationForm = ({
           </div>
           <div>
             <label className="block text-white text-sm font-medium mb-2">
-              Gender *
+              {questions.gender}
             </label>
             <select
               name="gender"
@@ -515,15 +513,17 @@ const ApplicationForm = ({
               className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
               required
             >
-              <option value="">Select gender</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Other">Other</option>
+              <option value="">{FORM.placeholders.selectGender}</option>
+              {FORM.options.gender.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </select>
           </div>
           <div>
             <label className="block text-white text-sm font-medium mb-2">
-              School Name *
+              {questions.school}
             </label>
             <input
               type="text"
@@ -536,7 +536,7 @@ const ApplicationForm = ({
           </div>
           <div>
             <label className="block text-white text-sm font-medium mb-2">
-              Grade/Level *
+              {questions.grade}
             </label>
             <select
               name="grade"
@@ -545,18 +545,17 @@ const ApplicationForm = ({
               className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
               required
             >
-              <option value="">Select grade</option>
-              <option value="Preparation Grade">Preparation</option>
-              <option value="9th Grade">9th Grade</option>
-              <option value="10th Grade">10th Grade</option>
-              <option value="11th Grade">11th Grade</option>
-              <option value="12th Grade">12th Grade</option>
-              <option value="Graduate">Graduate</option>
+              <option value="">{FORM.placeholders.selectGrade}</option>
+              {FORM.options.grade.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </select>
           </div>
           <div>
             <label className="block text-white text-sm font-medium mb-2">
-              City *
+              {questions.city}
             </label>
             <input
               type="text"
@@ -584,7 +583,7 @@ const ApplicationForm = ({
     <div className="space-y-6">
       <div>
         <label className="block text-white text-sm font-medium mb-2">
-          Motivation Letter * (Min 150 Words)
+          {formatFormText(questions.motivationLetter)}
         </label>
         <textarea
           name="motivationLetter"
@@ -596,18 +595,18 @@ const ApplicationForm = ({
         />
         <p
           className={`text-sm mt-1 text-left ${
-            getWordCount(formData.motivationLetter) >= 150
+            getWordCount(formData.motivationLetter) >= FORM.minimumMotivationWords
               ? 'text-green-500'
               : 'text-red-500'
           }`}
         >
-          {getWordCount(formData.motivationLetter)} / 150 words
+          {getWordCount(formData.motivationLetter)} / {FORM.minimumMotivationWords} words
         </p>
       </div>
 
       <div>
         <label className="block text-white text-sm font-medium mb-2">
-          Experience
+          {questions.experience}
         </label>
         <textarea
           name="experience"
@@ -622,10 +621,10 @@ const ApplicationForm = ({
         <>
           <div>
             <label className="block text-white text-sm font-medium mb-2">
-              Committee Preferences (Top 3) *
+              {formatFormText(questions.committeePreferences)}
             </label>
             <div className="space-y-3">
-              {[0, 1, 2].map((idx) => (
+              {Array.from({ length: FORM.committeePreferenceCount }, (_, idx) => idx).map((idx) => (
                 <select
                   key={idx}
                   value={formData.committeePreferences[idx]}
@@ -635,7 +634,9 @@ const ApplicationForm = ({
                   className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
                   required={idx === 0}
                 >
-                  <option value="">{idx + 1}. Choice</option>
+                  <option value="">
+                    {formatFormText(questions.choice, { number: idx + 1 })}
+                  </option>
                   {COMMITTEES.map((c) => (
                     <option key={c} value={c}>
                       {c}
@@ -650,13 +651,7 @@ const ApplicationForm = ({
             <div className="space-y-6">
               <div>
                 <label className="block text-white text-sm font-medium mb-2">
-                  Case: Imagine that you are in the last session,
-                  and there are 2 different resolution papers, and
-                  none of them are finished nor qualified enough to
-                  be voted upon. There is literally no time to
-                  merge them, nor finish them. What would you do in
-                  this situation to stop committee from failing?
-                  (GA Only)
+                  {questions.chairAnswer1}
                 </label>
                 <textarea
                   name="chairAnswer1"
@@ -668,8 +663,7 @@ const ApplicationForm = ({
               </div>
               <div>
                 <label className="block text-white text-sm font-medium mb-2">
-                  What should a complete directive include?
-                  (Crisis Only)
+                  {questions.chairAnswer3}
                 </label>
                 <textarea
                   name="chairAnswer3"
@@ -681,8 +675,7 @@ const ApplicationForm = ({
               </div>
               <div>
                 <label className="block text-white text-sm font-medium mb-2">
-                  Please explain how a regular committee proceed
-                  while including the essential motions
+                  {questions.chairAnswer2}
                 </label>
                 <textarea
                   name="chairAnswer2"
@@ -696,7 +689,7 @@ const ApplicationForm = ({
           ) : (
             <div>
               <label className="block text-white text-sm font-medium mb-2">
-                English Level *
+                {questions.englishLevel}
               </label>
               <select
                 name="englishLevel"
@@ -705,11 +698,12 @@ const ApplicationForm = ({
                 className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
                 required
               >
-                <option value="">Select Level</option>
-                <option value="Beginner">Beginner</option>
-                <option value="Intermediate">Intermediate</option>
-                <option value="Advanced">Advanced</option>
-                <option value="Native">Native</option>
+                <option value="">{FORM.placeholders.selectEnglishLevel}</option>
+                {FORM.options.englishLevel.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
               </select>
             </div>
           )}
@@ -719,7 +713,7 @@ const ApplicationForm = ({
       {applicationType === 'press' && (
         <div>
           <label className="block text-white text-sm font-medium mb-2">
-            Camera Model
+            {questions.camera}
           </label>
           <input
             name="camera"
@@ -732,7 +726,7 @@ const ApplicationForm = ({
 
       <div>
         <label className="block text-white text-sm font-medium mb-2">
-          Dietary Preferences
+          {questions.dietaryPreferences}
         </label>
         <select
           name="dietaryPreferences"
@@ -740,19 +734,18 @@ const ApplicationForm = ({
           onChange={handleInputChange}
           className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
         >
-          <option value="">None</option>
-          <option value="Vegetarian">Vegetarian</option>
-          <option value="Vegan">Vegan</option>
-          <option value="Halal">Halal</option>
-          <option value="Kosher">Kosher</option>
-          <option value="Gluten-free">Gluten-free</option>
-          <option value="Dairy-free">Dairy-free</option>
+          <option value="">{FORM.messages.selectNone}</option>
+          {FORM.options.dietaryPreferences.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
         </select>
       </div>
 
       <div>
         <label className="block text-white text-sm font-medium mb-2">
-          Additional Info
+          {questions.additionalInfo}
         </label>
         <textarea
           name="additionalInfo"
@@ -770,7 +763,7 @@ const ApplicationForm = ({
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-12">
           <h1 className="text-6xl max-sm:text-3xl mt-16 mb-16 max-sm:mt-8 text-center text-[var(--color-accent)] font-bold">
-            {titleMap[applicationType]}
+            {applicationTitle}
           </h1>
         </div>
 
@@ -778,31 +771,31 @@ const ApplicationForm = ({
           <div className="bg-gray-800 rounded-xl p-8 shadow-2xl">
             <h2 className="text-2xl font-semibold mb-6 text-[var(--color-accent)]">
               {applicationType === 'delegation'
-                ? 'Delegation Information'
-                : 'Personal Information'}
+                ? FORM.labels.delegationInformation
+                : FORM.labels.personalInformation}
             </h2>
             {commonFields}
 
             {applicationType === 'delegation' && (
               <div className="mt-6">
                 <label className="block text-white text-sm font-medium mb-2">
-                  Number of Delegates * (Min 8)
+                  {formatFormText(questions.numberOfDelegates)}
                 </label>
                 <input
                   type="number"
                   name="numberOfDelegates"
                   value={formData.numberOfDelegates}
                   onChange={handleInputChange}
-                  min="8"
+                  min={FORM.minimumDelegates}
                   className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
                   required
                 />
                 <button
                   type="button"
                   onClick={handleGenerateForms}
-                  className="mt-4 px-6 py-3 bg-[var(--color-accent)] text-[#3D2D4A] font-bold rounded-lg hover:bg-white transition-colors cursor-pointer"
+                  className="mt-4 px-6 py-3 bg-[var(--color-accent)] text-[var(--background)] font-bold rounded-lg hover:bg-white transition-colors cursor-pointer"
                 >
-                  Generate Forms
+                  {FORM.labels.generateForms}
                 </button>
               </div>
             )}
@@ -811,7 +804,7 @@ const ApplicationForm = ({
           {applicationType !== 'delegation' && (
             <div className="bg-gray-800 rounded-xl p-8 shadow-2xl">
               <h2 className="text-2xl font-semibold mb-6 text-[var(--color-accent)]">
-                Application Details
+                {FORM.labels.applicationDetails}
               </h2>
               {detailFields}
             </div>
@@ -826,11 +819,11 @@ const ApplicationForm = ({
                   className="bg-gray-800 rounded-xl p-8 shadow-xl border-l-4 border-[var(--color-accent)]"
                 >
                   <h3 className="text-xl font-bold text-white mb-6">
-                    Delegate #{i + 1}
+                    {formatFormText(questions.delegate, { number: i + 1 })}
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <input
-                      placeholder="Full Name *"
+                      placeholder={questions.delegateFullName}
                       value={d.fullName}
                       onChange={(e) =>
                         handleDelegateMemberChange(
@@ -843,7 +836,7 @@ const ApplicationForm = ({
                       required
                     />
                     <input
-                      placeholder="Email *"
+                      placeholder={questions.delegateEmail}
                       type="email"
                       value={d.email}
                       onChange={(e) =>
@@ -857,7 +850,7 @@ const ApplicationForm = ({
                       required
                     />
                     <input
-                      placeholder="Phone *"
+                      placeholder={questions.delegatePhoneNumber}
                       type="tel"
                       value={d.phoneNumber}
                       onChange={(e) =>
@@ -871,7 +864,7 @@ const ApplicationForm = ({
                       required
                     />
                     <input
-                      placeholder="National ID *"
+                      placeholder={questions.delegateNationalId}
                       value={d.nationalId}
                       onChange={(e) =>
                         handleDelegateMemberChange(
@@ -884,7 +877,7 @@ const ApplicationForm = ({
                       required
                     />
                     <input
-                      placeholder="Birth Date *"
+                      placeholder={questions.delegateBirthDate}
                       type="date"
                       value={d.birthDate}
                       onChange={(e) =>
@@ -910,10 +903,12 @@ const ApplicationForm = ({
                       className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
                       required
                     >
-                      <option value="">Select Gender *</option>
-                      <option value="Male">Male</option>
-                      <option value="Female">Female</option>
-                      <option value="Other">Other</option>
+                      <option value="">{FORM.placeholders.selectGenderRequired}</option>
+                      {FORM.options.gender.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
                     </select>
                     <select
                       value={d.grade}
@@ -927,18 +922,15 @@ const ApplicationForm = ({
                       className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
                       required
                     >
-                      <option value="">Select Grade *</option>
-                      <option value="Preparation Grade">
-                        Preparation
-                      </option>
-                      <option value="9th Grade">9th Grade</option>
-                      <option value="10th Grade">10th Grade</option>
-                      <option value="11th Grade">11th Grade</option>
-                      <option value="12th Grade">12th Grade</option>
-                      <option value="Graduate">Graduate</option>
+                      <option value="">{FORM.placeholders.selectGradeRequired}</option>
+                      {FORM.options.grade.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
                     </select>
                     <input
-                      placeholder="City *"
+                      placeholder={questions.delegateCity}
                       value={d.city}
                       onChange={(e) =>
                         handleDelegateMemberChange(
@@ -953,9 +945,9 @@ const ApplicationForm = ({
 
                     <div className="md:col-span-2 space-y-2">
                       <label className="text-white text-sm">
-                        Committee Preferences *
+                        {questions.delegateCommitteePreferences}
                       </label>
-                      {[0, 1, 2].map((idx) => (
+                      {Array.from({ length: FORM.committeePreferenceCount }, (_, idx) => idx).map((idx) => (
                         <select
                           key={idx}
                           value={
@@ -972,7 +964,7 @@ const ApplicationForm = ({
                           required={idx === 0}
                         >
                           <option value="">
-                            {idx + 1}. Choice
+                            {formatFormText(questions.choice, { number: idx + 1 })}
                           </option>
                           {COMMITTEES.map((c) => (
                             <option key={c} value={c}>
@@ -994,13 +986,12 @@ const ApplicationForm = ({
                       className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
                       required
                     >
-                      <option value="">English Level *</option>
-                      <option value="Beginner">Beginner</option>
-                      <option value="Intermediate">
-                        Intermediate
-                      </option>
-                      <option value="Advanced">Advanced</option>
-                      <option value="Native">Native</option>
+                      <option value="">{questions.delegateEnglishLevel}</option>
+                      {FORM.options.englishLevel.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
                     </select>
                     <select
                       value={d.dietaryPreferences}
@@ -1013,22 +1004,17 @@ const ApplicationForm = ({
                       }
                       className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
                     >
-                      <option value="">Dietary Prefs</option>
-                      <option value="Vegetarian">Vegetarian</option>
-                      <option value="Vegan">Vegan</option>
-                      <option value="Halal">Halal</option>
-                      <option value="Kosher">Kosher</option>
-                      <option value="Gluten-free">
-                        Gluten-free
-                      </option>
-                      <option value="Dairy-free">
-                        Dairy-free
-                      </option>
+                      <option value="">{questions.delegateDietaryPreferences}</option>
+                      {FORM.options.dietaryPreferences.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
                     </select>
 
                     <div className="md:col-span-2">
                       <textarea
-                        placeholder="Experience"
+                        placeholder={questions.delegateExperience}
                         value={d.experience}
                         onChange={(e) =>
                           handleDelegateMemberChange(
@@ -1043,10 +1029,10 @@ const ApplicationForm = ({
                     </div>
                     <div className="md:col-span-2">
                       <label className="block text-white text-sm font-medium mb-1">
-                        Motivation Letter * (Min 150 Words)
+                        {formatFormText(questions.delegateMotivationLetter)}
                       </label>
                       <textarea
-                        placeholder="Motivation Letter *"
+                        placeholder={questions.delegateMotivationLetterPlaceholder}
                         value={d.motivationLetter}
                         onChange={(e) =>
                           handleDelegateMemberChange(
@@ -1061,16 +1047,16 @@ const ApplicationForm = ({
                       />
                       <p
                         className={`text-sm mt-1 text-left ${
-                          getWordCount(d.motivationLetter) >= 150
+                          getWordCount(d.motivationLetter) >= FORM.minimumMotivationWords
                             ? 'text-green-500'
                             : 'text-red-500'
                         }`}
                       >
-                        {getWordCount(d.motivationLetter)} / 150 words
+                        {getWordCount(d.motivationLetter)} / {FORM.minimumMotivationWords} words
                       </p>
                     </div>
                     <textarea
-                      placeholder="Additional Info"
+                      placeholder={questions.delegateAdditionalInfo}
                       value={d.additionalInfo}
                       onChange={(e) =>
                         handleDelegateMemberChange(
@@ -1113,8 +1099,8 @@ const ApplicationForm = ({
                 }`}
               >
                 {isSubmitting
-                  ? 'Submitting...'
-                  : 'Submit Application'}
+                  ? FORM.labels.submitting
+                  : FORM.labels.submit}
                 <svg
                   width="24"
                   height="19"
@@ -1143,13 +1129,13 @@ const ApplicationForm = ({
         </form>
 
         {mounted && verificationModalOpen && createPortal(
-          <div className="fixed inset-0 z-9999 flex items-center justify-center bg-[#3D2D4A] h-screen w-screen touch-none overscroll-none">
-            <div className="bg-[#3D2D4A] border-2 border-[var(--color-accent)] p-8 rounded-3xl max-w-md w-[90%] shadow-2xl flex flex-col gap-4 animate-in fade-in zoom-in duration-300">
+          <div className="fixed inset-0 z-9999 flex items-center justify-center bg-[var(--background)] h-screen w-screen touch-none overscroll-none">
+            <div className="bg-[var(--background)] border-2 border-[var(--color-accent)] p-8 rounded-3xl max-w-md w-[90%] shadow-2xl flex flex-col gap-4 animate-in fade-in zoom-in duration-300">
               <h2 className="text-3xl font-bold text-[var(--color-accent)] text-center">
-                Verify Email
+                {FORM.labels.verifyEmail}
               </h2>
               <p className="text-gray-300 text-center">
-                We&apos;ve sent a verification code to{' '}
+                {FORM.messages.verificationSent}{' '}
                 <span className="text-white font-semibold">
                   {formData.email}
                 </span>
@@ -1176,24 +1162,24 @@ const ApplicationForm = ({
                     setVerificationCode(e.target.value)
                   }
                   className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-xl text-white text-center text-2xl tracking-widest focus:border-[var(--color-accent)] focus:outline-none transition-colors"
-                  placeholder="CODE"
+                  placeholder={FORM.labels.verificationCodePlaceholder}
                   required
                 />
 
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className={`w-full px-4 py-4 cursor-pointer bg-[var(--color-accent)] text-[#3D2D4A] font-bold text-xl rounded-xl hover:bg-white transition-all active:scale-95 ${
+                    className={`w-full px-4 py-4 cursor-pointer bg-[var(--color-accent)] text-[var(--background)] font-bold text-xl rounded-xl hover:bg-white transition-all active:scale-95 ${
                     isSubmitting ? 'opacity-70' : ''
                   }`}
                 >
                   {isSubmitting ? (
                     <span className="flex items-center justify-center gap-2">
-                      <span className="animate-spin h-5 w-5 border-2 border-[#3D2D4A] border-t-transparent rounded-full"></span>
-                      Verifying...
+                        <span className="animate-spin h-5 w-5 border-2 border-[var(--background)] border-t-transparent rounded-full"></span>
+                      {FORM.labels.verifying}
                     </span>
                   ) : (
-                    'Verify Code'
+                    FORM.labels.verifyCode
                   )}
                 </button>
               </form>

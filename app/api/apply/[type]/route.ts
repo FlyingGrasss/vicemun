@@ -1,7 +1,7 @@
 import { google } from 'googleapis';
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
-import { CONFERENCE } from '@/lib/conference';
+import { CONFERENCE, THEME } from '@/lib/conference';
 import getMessage from '@/lib/getMessage';
 import { prisma } from '@/lib/prisma';
 
@@ -11,7 +11,10 @@ interface RequestData {
   lang?: 'en' | 'tr';
 }
 
-const resend = new Resend(process.env.RESEND_API_KEY!);
+const disableEmailSending = process.env.DISABLE_EMAIL_SENDING === 'true';
+const resend = disableEmailSending
+  ? null
+  : new Resend(process.env.RESEND_API_KEY!);
 const SERVICE_ACCOUNT_KEY = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY!);
 
 const getSheetId = (type: string) => {
@@ -116,7 +119,11 @@ export async function POST(
       },
     });
 
-    await sendVerificationEmail(email, name, code, lang, type);
+    if (disableEmailSending) {
+      console.info(`[application-test] type=${type} email=${email} verificationCode=${code}`);
+    } else {
+      await sendVerificationEmail(email, name, code, lang, type);
+    }
 
     return NextResponse.json(
       {
@@ -151,7 +158,7 @@ async function sendVerificationEmail(
     lang === 'en'
       ? `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h1 style="color: #D3A7CA;">${CONFERENCE.shortName} ${title} Application</h1>
+        <h1 style="color: ${THEME.accent};">${CONFERENCE.shortName} ${title} Application</h1>
         <p>Dear ${name},</p>
         <p>Thank you for applying!</p>
         <p>Your verification code is:</p>
@@ -163,7 +170,7 @@ async function sendVerificationEmail(
     `
       : `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h1 style="color: #D3A7CA;">${CONFERENCE.shortName} ${title} Basvurusu</h1>
+        <h1 style="color: ${THEME.accent};">${CONFERENCE.shortName} ${title} Basvurusu</h1>
         <p>Sayin ${name},</p>
         <p>Basvurunuz icin tesekkurler!</p>
         <p>Dogrulama kodunuz:</p>
@@ -173,6 +180,8 @@ async function sendVerificationEmail(
         <p>Saygilarimizla,<br/>${CONFERENCE.brandName} Sekreteryasi</p>
       </div>
     `;
+
+  if (!resend) return;
 
   const { error: resendError } = await resend.emails.send({
     from: `${CONFERENCE.brandName} Team <${fromEmail}>`,

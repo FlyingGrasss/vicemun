@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
+import type { CSSProperties } from "react";
 import "@/app/globals.css";
 import { Analytics } from "@vercel/analytics/next";
 import { Montserrat } from "next/font/google";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import BackgroundAnimations from "@/components/BackgroundAnimations";
-import { CONFERENCE } from "@/lib/conference";
+import { ASSETS, CONFERENCE, THEME } from "@/lib/conference";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -16,50 +17,46 @@ const montserrat = Montserrat({
 
 export const metadata: Metadata = {
   title: {
-    default: CONFERENCE.shortName,
-    template: `%s | ${CONFERENCE.shortName}`,
+    default: CONFERENCE.displayName,
+    template: `%s | ${CONFERENCE.displayName}`,
   },
   description: `${CONFERENCE.sessionName}. Join us on ${CONFERENCE.dates}. ${CONFERENCE.hashtag}`,
   keywords: [
-    "MUN",
-    "Vice Model United Nations",
+    ...CONFERENCE.keywords,
     CONFERENCE.shortName,
     CONFERENCE.brandName,
-    "Model United Nations",
-    "Turkey MUN 2026",
-    "Izmir MUN",
   ],
   icons: {
-    icon: [{ url: "/favicon.ico", type: "image/x-icon" }],
+    icon: [{ url: ASSETS.favicon, type: "image/x-icon" }],
     apple: [
       {
-        url: "/logo.png",
+        url: ASSETS.logo,
         sizes: "180x180",
         type: "image/png",
       },
     ],
   },
   openGraph: {
-    title: `${CONFERENCE.shortName} | ${CONFERENCE.fullName}`,
+    title: `${CONFERENCE.displayName} | ${CONFERENCE.fullName}`,
     description: `${CONFERENCE.dates} | ${CONFERENCE.sessionName}.`,
     url: CONFERENCE.siteUrl,
-    siteName: CONFERENCE.shortName,
+    siteName: CONFERENCE.displayName,
     images: [
       {
-        url: `${CONFERENCE.siteUrl}/icon.png`,
+        url: `${CONFERENCE.siteUrl}${ASSETS.openGraph}`,
         width: 1200,
         height: 630,
-        alt: `${CONFERENCE.shortName} - ${CONFERENCE.fullName}`,
+        alt: `${CONFERENCE.displayName} - ${CONFERENCE.fullName}`,
       },
     ],
-    locale: "en_US",
+    locale: CONFERENCE.locale,
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: `${CONFERENCE.shortName} | ${CONFERENCE.fullName}`,
+    title: `${CONFERENCE.displayName} | ${CONFERENCE.fullName}`,
     description: `${CONFERENCE.dates} | ${CONFERENCE.hashtag}`,
-    images: [`${CONFERENCE.siteUrl}/icon.png`],
+    images: [`${CONFERENCE.siteUrl}${ASSETS.openGraph}`],
   },
   metadataBase: new URL(CONFERENCE.siteUrl),
   alternates: {
@@ -86,7 +83,14 @@ export default function RootLayout({
     <html lang="en" className="overflow-x-hidden max-w-screen scroll-smooth">
       <body
         className={`overflow-x-hidden max-w-screen ${montserrat.variable} ${montserrat.className} antialiased`}
-        style={{ scrollbarWidth: "none" }}
+        style={{
+          scrollbarWidth: "none",
+          "--background": THEME.background,
+          "--foreground": THEME.foreground,
+          "--color-accent": THEME.accent,
+          "--color-middle": THEME.middle,
+          "--color-warm": THEME.warm,
+        } as CSSProperties}
       >
         <BackgroundAnimations />
 

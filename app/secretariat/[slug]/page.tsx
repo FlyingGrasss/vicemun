@@ -3,7 +3,7 @@
 import ContentImage from "@/components/ContentImage";
 import RichText from "@/components/RichText";
 import { getPublishedSecretariat, getPublishedSecretariatMember } from "@/lib/content";
-import { CONFERENCE } from "@/lib/conference";
+import { CONFERENCE, COPY, formatConferenceText } from "@/lib/conference";
 import { notFound } from "next/navigation";
 import type { Metadata } from 'next';
 
@@ -22,7 +22,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   
   return {
     title: `${member.name} - Secretariat`,
-    description: `Meet ${member.name}, ${member.role} at ${CONFERENCE.shortName}.`,
+    description: formatConferenceText(COPY.metadata.secretariatDetailDescription, {
+      memberName: member.name,
+      role: member.role,
+      shortName: CONFERENCE.shortName,
+    }),
     openGraph: {
       title: member.name,
       images: [member.imageUrl],

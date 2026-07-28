@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Countdown from "@/components/Countdown";
-import { CONFERENCE } from "@/lib/conference";
+import { CONFERENCE, COPY } from "@/lib/conference";
 
 export default function Home() {
   return (
@@ -10,7 +10,7 @@ export default function Home() {
       <main className="relative z-10 justify-center min-h-[85vh] flex flex-col items-center gap-12 max-sm:gap-6 px-4">
         <div className="text-center">
           <h1 className="text-[var(--color-accent)] text-7xl max-sm:text-[40px] tracking-tight font-bold mb-4">
-            {CONFERENCE.shortName.replace("'", "\u2019")}
+            {CONFERENCE.displayName}
           </h1>
           <p className="text-white text-2xl max-sm:text-lg mb-2">
             {CONFERENCE.dates}
@@ -29,7 +29,7 @@ export default function Home() {
 
         <Link href="/apply" className="w-fit">
           <button className="group glassmorphism text-xl max-sm:text-base cursor-pointer items-center transition-all duration-300 justify-center gap-4 max-sm:gap-2 inline-flex backdrop-blur-md rounded-full px-8 py-4 max-sm:px-6 max-sm:py-3 shadow-lg">
-            Apply Now
+            {COPY.home.applyButton}
             <svg
               width="24"
               height="19"

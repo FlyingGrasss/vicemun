@@ -1,13 +1,14 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import { ASSETS, COPY } from '@/lib/conference'
 
 const NotFound = () => {
   return (
     <div className='flex h-screen max-sm:my-4 flex-col justify-center items-center min-[1800px]:gap-7 gap-5 max-sm:gap-3'>
-      <h1 className="text-4xl min-[1800px]:text-5xl max-sm:text-2xl text-center font-bold">We couldn&apos;t find the page you were looking for</h1>
+      <h1 className="text-4xl min-[1800px]:text-5xl max-sm:text-2xl text-center font-bold">{COPY.pages.notFoundTitle}</h1>
       <Image 
-        src={"/404 Not Found.gif"}
-        alt="404 Not Found"
+        src={ASSETS.notFound}
+        alt={ASSETS.notFoundAlt}
         width={500}
         height={500}
         className="mx-auto min-[1500px]:w-[600px] max-sm:w-[300px] min-[1800px]:w-[700px] h-auto bg-black rounded-4xl"
@@ -15,7 +16,7 @@ const NotFound = () => {
       />
       <Link href="/" className="w-fit">
           <button className="group glassmorphism text-xl max-sm:text-base cursor-pointer items-center transition-all duration-300 justify-center gap-4 max-sm:gap-2 inline-flex backdrop-blur-md rounded-full px-8 py-4 max-sm:px-6 max-sm:py-3 shadow-lg">
-            Home
+            {COPY.pages.homeButton}
             <svg
               width="24"
               height="19"

@@ -8,6 +8,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import { ASSETS, COPY, CONFERENCE } from "@/lib/conference";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -34,19 +35,19 @@ const Navbar = () => {
   }
 
   return (
-    <div className="flex px-8 max-sm:px-0 max-sm:w-full bg-[#3D2D4A] py-4 max-sm:py-2 justify-between items-center border-b border-gray-300">
+    <div className="flex px-8 max-sm:px-0 max-sm:w-full bg-[var(--background)] py-4 max-sm:py-2 justify-between items-center border-b border-gray-300">
       <div className="flex items-center gap-4 max-sm:ml-4 max-sm:w-full max-sm:justify-between max-sm:pr-4">
         <Link href="/" className="flex items-center gap-4">
           <Image
-            src={"/logo-nobg.png"}
+            src={ASSETS.logoNoBackground}
             width={75}
             height={75}
-            alt="VICEMUN Logo"
+            alt={`${CONFERENCE.brandName} Logo`}
             className="max-sm:w-[50px] max-sm:h-[50px]"
           />
           {/* Desktop title - visible only on desktop */}
           <h1 className="text-[var(--color-accent)] tracking-tighter text-3xl font-bold max-sm:hidden">
-            VICEMUN
+            {CONFERENCE.brandName}
           </h1>
         </Link>
         {/* Mobile title - centered only on mobile */}
@@ -55,7 +56,7 @@ const Navbar = () => {
           className="max-sm:absolute max-sm:left-1/2 max-sm:transform max-sm:-translate-x-1/2 sm:hidden"
         >
           <h1 className="text-[var(--color-accent)] tracking-tighter max-sm:text-2xl font-bold max-sm:tracking-tight">
-            VICEMUN
+            {CONFERENCE.brandName}
           </h1>
         </Link>
       </div>
@@ -80,7 +81,7 @@ const Navbar = () => {
               <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" />
               <path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
             </svg>
-            Home
+            {COPY.navigation.home}
           </Link>
           <Link
             href={"/letters"}
@@ -100,7 +101,7 @@ const Navbar = () => {
               <path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7" />
               <rect x="2" y="4" width="20" height="16" rx="2" />
             </svg>
-            Letters
+            {COPY.navigation.letters}
           </Link>
           <Link
             href={"/secretariat"}
@@ -121,7 +122,7 @@ const Navbar = () => {
               <circle cx="10" cy="8" r="5" />
               <path d="M22 20c0-3.37-2-6.5-4-8a5 5 0 0 0-.45-8.3" />
             </svg>
-            Secretariat
+            {COPY.navigation.secretariat}
           </Link>
           <Link
             href={"/committees"}
@@ -147,7 +148,7 @@ const Navbar = () => {
               <path d="M3.721 6.391a10 10 0 0 1 2.7-2.69" />
               <path d="m6.163 21.117-2.906.85a1 1 0 0 1-1.236-1.169l.965-2.98" />
             </svg>
-            Committees
+            {COPY.navigation.committees}
           </Link>
           {/* Desktop Apply - button with glass effect */}
           <Link
@@ -167,7 +168,7 @@ const Navbar = () => {
             >
               <path d="M20 6 9 17l-5-5" />
             </svg>
-            Apply
+            {COPY.navigation.apply}
           </Link>
         </div>
       )}
@@ -220,7 +221,7 @@ const Navbar = () => {
           )}
 
           <div
-            className={`fixed top-0 right-0 h-full w-64 bg-[#3D2D4A] z-50 transform transition-transform duration-300 ease-in-out ${
+            className={`fixed top-0 right-0 h-full w-64 bg-[var(--background)] z-50 transform transition-transform duration-300 ease-in-out ${
               isOpen ? "translate-x-0" : "translate-x-full"
             }`}
           >
@@ -250,7 +251,7 @@ const Navbar = () => {
                   <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" />
                   <path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
                 </svg>
-                Home
+                {COPY.navigation.home}
               </Link>
               <Link
                 href="/letters"
@@ -279,7 +280,7 @@ const Navbar = () => {
                   <path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7" />
                   <rect x="2" y="4" width="20" height="16" rx="2" />
                 </svg>
-                Letters
+                {COPY.navigation.letters}
               </Link>
               <Link
                 href="/secretariat"
@@ -309,7 +310,7 @@ const Navbar = () => {
                   <circle cx="10" cy="8" r="5" />
                   <path d="M22 20c0-3.37-2-6.5-4-8a5 5 0 0 0-.45-8.3" />
                 </svg>
-                Secretariat
+                {COPY.navigation.secretariat}
               </Link>
               <Link
                 href="/committees"
@@ -344,7 +345,7 @@ const Navbar = () => {
                   <path d="M3.721 6.391a10 10 0 0 1 2.7-2.69" />
                   <path d="m6.163 21.117-2.906.85a1 1 0 0 1-1.236-1.169l.965-2.98" />
                 </svg>
-                Committees
+                {COPY.navigation.committees}
               </Link>
               {/* Mobile Apply - normal text with glow effect */}
               <Link
@@ -365,7 +366,7 @@ const Navbar = () => {
                 >
                   <path d="M20 6 9 17l-5-5" />
                 </svg>
-                Apply
+                {COPY.navigation.apply}
               </Link>
             </div>
           </div>

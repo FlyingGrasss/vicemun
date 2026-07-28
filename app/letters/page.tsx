@@ -1,26 +1,32 @@
 import Image from 'next/image';
 import type { Metadata } from 'next';
-import { CONFERENCE } from '@/lib/conference';
+import { ASSETS, CONFERENCE, COPY, formatConferenceText } from '@/lib/conference';
 
 export const metadata: Metadata = {
   title: "Letters",
-  description: `Read the official letters related to ${CONFERENCE.shortName}.`,
+  description: formatConferenceText(COPY.metadata.lettersDescription, {
+    shortName: CONFERENCE.shortName,
+  }),
   keywords: [
     CONFERENCE.shortName,
     "Letters",
     "Secretary General",
     "MUN conference",
     "Model United Nations",
-    "Vice MUN"
+    ...CONFERENCE.keywords,
   ],
   openGraph: {
     title: "Letters",
-    description: `Read the official letters related to ${CONFERENCE.shortName}.`,
+    description: formatConferenceText(COPY.metadata.lettersDescription, {
+      shortName: CONFERENCE.shortName,
+    }),
     url: `${CONFERENCE.siteUrl}/letters`,
   },
   twitter: {
     title: "Letters",
-    description: `Read the official letters related to ${CONFERENCE.shortName}.`,
+    description: formatConferenceText(COPY.metadata.lettersDescription, {
+      shortName: CONFERENCE.shortName,
+    }),
     card: "summary_large_image",
   },
 };
@@ -29,35 +35,36 @@ const Letters = () => {
   return (
     <div>
       <h1 className="text-white text-center text-5xl max-sm:text-3xl max-sm:pt-6 pt-12">
-        Letter From The <br className="sm:hidden" />{" "}
+        {COPY.letters.titlePrefix} <br className="sm:hidden" />{" "}
         <span className="text-[var(--color-accent)] font-black">
-          Secretary General
+          {COPY.letters.titleHighlight}
         </span>
       </h1>
 
       <p className="text-white mx-auto w-[1000px] max-sm:w-[350px] max-sm:text-sm text-2xl bg-black/60 relative rounded-4xl max-sm:rounded-2xl max-sm:px-8 max-sm:py-4 max-sm:my-6 px-16 py-8 my-12">
-        Dear Participants
+        {COPY.letters.opening}
         <br />
         <br />
-        It is a great pleasure to invite you to {CONFERENCE.sessionName}. On{" "}
-        {CONFERENCE.dates}, delegates will come together to debate, negotiate,
-        and approach global issues through diplomacy and critical thinking.
-        <br />
-        <br />
-        Our team is preparing {CONFERENCE.shortName} with the goal of creating a
-        serious, welcoming, and memorable Model United Nations experience. We
-        look forward to seeing thoughtful debate, strong research, and wise
-        minds in every committee.
+        {COPY.letters.paragraphs.map((paragraph, index) => (
+          <span key={paragraph}>
+            {formatConferenceText(paragraph, {
+              sessionName: CONFERENCE.sessionName,
+              dates: CONFERENCE.dates,
+              shortName: CONFERENCE.shortName,
+            })}
+            {index < COPY.letters.paragraphs.length - 1 && <><br /><br /></>}
+          </span>
+        ))}
         <br />
         <br />
         <span className="text-[var(--color-accent)] font-black">
-          VICEMUN Secretariat
+          {CONFERENCE.organizer.name}
         </span>
         <br />
         {CONFERENCE.hashtag}
 
         <Image
-          src="/mail.svg"
+          src={ASSETS.mail}
           alt=""
           width={48}
           height={48}

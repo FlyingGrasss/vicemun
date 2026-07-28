@@ -3,14 +3,16 @@
 export const revalidate = 60;
 
 import SecretariatCard from "@/components/SecretariatCard";
-import { CONFERENCE } from "@/lib/conference";
+import { CONFERENCE, COPY, formatConferenceText } from "@/lib/conference";
 import { getPublishedSecretariat } from "@/lib/content";
 import type { Metadata } from 'next';
 
 export const generateMetadata = async (): Promise<Metadata> => {
   const allSecretariat = await getPublishedSecretariat();
   const names = allSecretariat.map(member => member.name).join(', ');
-  const description = `Meet the dedicated Secretariat of ${CONFERENCE.shortName}.`;
+  const description = formatConferenceText(COPY.metadata.secretariatDescription, {
+    shortName: CONFERENCE.shortName,
+  });
 
   return {
     title: `Secretariat`,
@@ -31,7 +33,7 @@ const Secretariat = async () => {
     <div className="min-h-screen pb-20 overflow-hidden">
       <div className="mx-auto container px-4">
         <h1 className="text-6xl max-sm:text-4xl mt-20 mb-20 text-center text-white font-bold tracking-tight">
-          Secretariat
+          {COPY.pages.secretariatTitle}
         </h1>
 
         <div className="flex flex-col items-center gap-24 md:gap-32">

@@ -1,4 +1,4 @@
-import { CONFERENCE } from '@/lib/conference';
+import { APPLICATIONS, CONFERENCE } from '@/lib/conference';
 import type { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -9,9 +9,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ["/letters", "weekly", 0.7],
     ["/committees", "monthly", 0.6],
     ["/apply", "monthly", 0.5],
-    ["/apply/delegate", "weekly", 0.8],
-    ["/apply/delegation", "weekly", 0.8],
-    ["/apply/chair", "weekly", 0.8],
+    ...APPLICATIONS.filter((application) => application.enabled).map((application) => [
+      `/apply/${application.id}`,
+      "weekly",
+      0.8,
+    ] as const),
   ] as const;
 
   return routes.map(([path, changeFrequency, priority]) => ({
