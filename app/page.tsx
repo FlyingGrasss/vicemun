@@ -2,29 +2,33 @@
 
 import Link from "next/link";
 import Countdown from "@/components/Countdown";
-import { CONFERENCE, COPY } from "@/lib/conference";
+import { COPY } from "@/lib/conference";
+import { getSiteSettings } from "@/lib/siteSettings";
 
-export default function Home() {
+export default async function Home() {
+  const settings = await getSiteSettings();
+  const conference = settings.conference;
+
   return (
     <div className="relative min-h-screen">
       <main className="relative z-10 justify-center min-h-[85vh] flex flex-col items-center gap-12 max-sm:gap-6 px-4">
         <div className="text-center">
           <h1 className="text-[var(--color-accent)] text-7xl max-sm:text-[40px] tracking-tight font-bold mb-4">
-            {CONFERENCE.displayName}
+            {conference.displayName}
           </h1>
           <p className="text-white text-2xl max-sm:text-lg mb-2">
-            {CONFERENCE.dates}
+            {conference.dates}
           </p>
           <p className="mx-auto max-w-2xl text-white/85 text-lg max-sm:text-sm">
-            {CONFERENCE.sessionName}
+            {conference.sessionName}
           </p>
           <p className="mt-3 text-[var(--color-accent)] text-lg font-semibold">
-            {CONFERENCE.hashtag}
+            {conference.hashtag}
           </p>
         </div>
 
         <div className="max-sm:scale-90 max-sm:origin-center">
-          <Countdown />
+          <Countdown startDateIso={conference.startDateIso} />
         </div>
 
         <Link href="/apply" className="w-fit">

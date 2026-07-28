@@ -7,12 +7,10 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import {
-  APPLICATIONS,
-  CONFERENCE,
   FORM,
-  getApplicationQuestions,
-  formatFormText,
+  formatConferenceText,
 } from '@/lib/conference';
+import type { EditableSettings } from '@/lib/siteSettings';
 
 // --- Interfaces ---
 interface FormData {
@@ -28,6 +26,7 @@ interface FormData {
   city: string;
   dietaryPreferences: string;
   additionalInfo: string;
+  customAnswers: Record<string, string>;
 
   // Specific
   motivationLetter: string;
@@ -61,6 +60,7 @@ const initialFormState: FormData = {
   experience: '',
   committeePreferences: Array(FORM.committeePreferenceCount).fill(''),
   additionalInfo: '',
+  customAnswers: {},
   englishLevel: '',
   dietaryPreferences: '',
   camera: '',
@@ -88,14 +88,28 @@ interface DelegateMember {
 }
 
 const ApplicationForm = ({
-  applicationType
+  applicationType,
+  settings,
 }: {
   applicationType: string;
+  settings: EditableSettings;
 }) => {
-  const questions = getApplicationQuestions(applicationType);
-  const storageKey = `${CONFERENCE.id}_form_${applicationType}`;
-  const delegatesStorageKey = `${CONFERENCE.id}_form_delegates_${applicationType}`;
-  const [formData, setFormData] = useState<FormData>(initialFormState);
+  const questions = settings.questions[applicationType] ?? settings.questions.delegate;
+  const rules = settings.form;
+  const formatQuestionText = (value: string, extra: Record<string, string | number> = {}) =>
+    formatConferenceText(value, {
+      minimumMotivationWords: rules.minimumMotivationWords,
+      minimumDelegates: rules.minimumDelegates,
+      committeePreferenceCount: rules.committeePreferenceCount,
+      ...extra,
+    });
+  const storageKey = `${settings.conference.id}_form_${applicationType}`;
+  const delegatesStorageKey = `${settings.conference.id}_form_delegates_${applicationType}`;
+  const [formData, setFormData] = useState<FormData>(() => ({
+    ...initialFormState,
+    committeePreferences: Array(rules.committeePreferenceCount).fill(''),
+    numberOfDelegates: rules.minimumDelegates,
+  }));
   const [delegates, setDelegates] = useState<DelegateMember[]>([]);
   const [formsGenerated, setFormsGenerated] = useState(false);
   const [verificationModalOpen, setVerificationModalOpen] = useState(false);
@@ -131,10 +145,10 @@ const ApplicationForm = ({
     if (savedData) {
       try {
         const parsed = JSON.parse(savedData);
-        setFormData(parsed);
+        setFormData({ ...initialFormState, ...parsed, customAnswers: parsed.customAnswers ?? {} });
         // If delegation forms were previously generated, restore that state
         if (
-          parsed.numberOfDelegates >= FORM.minimumDelegates &&
+          parsed.numberOfDelegates >= rules.minimumDelegates &&
           applicationType === 'delegation'
         ) {
           setFormsGenerated(true);
@@ -154,7 +168,7 @@ const ApplicationForm = ({
     }
 
     setIsLoaded(true);
-  }, [applicationType, delegatesStorageKey, storageKey]);
+  }, [applicationType, delegatesStorageKey, rules.minimumDelegates, storageKey]);
 
   // 2. Save to Local Storage on Change (Debounced)
   useEffect(() => {
@@ -183,6 +197,14 @@ const ApplicationForm = ({
     >
   ) => {
     const { name, value } = e.target;
+    if (name.startsWith('customQuestion_')) {
+      const questionKey = name.replace('customQuestion_', '');
+      setFormData((prev) => ({
+        ...prev,
+        customAnswers: { ...prev.customAnswers, [questionKey]: value },
+      }));
+      return;
+    }
     setFormData((prev) => ({
       ...prev,
       [name]:
@@ -200,9 +222,9 @@ const ApplicationForm = ({
   };
 
   const handleGenerateForms = () => {
-    if (formData.numberOfDelegates < FORM.minimumDelegates) {
+    if (formData.numberOfDelegates < rules.minimumDelegates) {
       setMainPageMessage({
-        text: formatFormText(FORM.messages.minimumDelegates),
+        text: formatQuestionText(FORM.messages.minimumDelegates),
         isError: true
       });
       return;
@@ -229,7 +251,7 @@ const ApplicationForm = ({
       city: '',
       motivationLetter: '',
       experience: '',
-      committeePreferences: Array(FORM.committeePreferenceCount).fill(''),
+      committeePreferences: Array(rules.committeePreferenceCount).fill(''),
       additionalInfo: '',
       englishLevel: '',
       dietaryPreferences: ''
@@ -275,22 +297,22 @@ const ApplicationForm = ({
 
     // Explicit Chair Validation for Word Count
     // Word Count Validation
-    if (applicationType !== 'delegation') {
-      if (getWordCount(formData.motivationLetter) < FORM.minimumMotivationWords) {
+    if (applicationType !== 'delegation' && hasQuestion('motivationLetter')) {
+      if (getWordCount(formData.motivationLetter) < rules.minimumMotivationWords) {
         setMainPageMessage({
-          text: formatFormText(FORM.messages.motivationTooShort),
+          text: formatQuestionText(FORM.messages.motivationTooShort),
           isError: true
         });
         setIsSubmitting(false);
         window.scrollTo(0, 0);
         return;
       }
-    } else {
+    } else if (applicationType === 'delegation' && hasQuestion('delegateMotivationLetter')) {
       // Validate all delegates
       for (let i = 0; i < delegates.length; i++) {
-        if (getWordCount(delegates[i].motivationLetter) < FORM.minimumMotivationWords) {
+        if (getWordCount(delegates[i].motivationLetter) < rules.minimumMotivationWords) {
           setMainPageMessage({
-            text: formatFormText(FORM.messages.delegateMotivationTooShort, {
+            text: formatQuestionText(FORM.messages.delegateMotivationTooShort, {
               number: i + 1,
             }),
             isError: true
@@ -376,6 +398,7 @@ const ApplicationForm = ({
         email: formData.email,
         numberOfDelegates: formData.numberOfDelegates,
         delegates: delegates,
+        customAnswers: formData.customAnswers,
         code: verificationCode,
         lang: 'en'
       };
@@ -413,12 +436,40 @@ const ApplicationForm = ({
   // --- Render Parts ---
 
   const applicationTitle =
-    APPLICATIONS.find((application) => application.id === applicationType)
+    settings.applications.find((application) => application.id === applicationType)
       ?.formTitle ?? applicationType;
+
+  const builtInQuestionKeys = new Set([
+    'schoolName', 'fullName', 'birthDate', 'phoneNumber', 'email', 'nationalId', 'gender', 'school', 'grade',
+    'city', 'motivationLetter', 'motivationLetterPlaceholder', 'experience', 'committeePreferences', 'choice',
+    'englishLevel', 'dietaryPreferences', 'additionalInfo', 'contactEmail', 'numberOfDelegates', 'delegate',
+    'delegateFullName', 'delegateEmail', 'delegatePhoneNumber', 'delegateNationalId', 'delegateBirthDate',
+    'delegateGender', 'delegateGrade', 'delegateCity', 'delegateCommitteePreferences', 'delegateEnglishLevel',
+    'delegateDietaryPreferences', 'delegateExperience', 'delegateMotivationLetter', 'delegateMotivationLetterPlaceholder',
+    'delegateAdditionalInfo', 'chairAnswer1', 'chairAnswer2', 'chairAnswer3', 'references', 'camera',
+  ]);
+  const customQuestions = Object.entries(questions).filter(([key]) => !builtInQuestionKeys.has(key));
+  const hasQuestion = (key: string) => typeof questions[key] === 'string' && questions[key].trim().length > 0;
+  const customQuestionFields = customQuestions.length > 0 ? (
+    <div className="space-y-4 md:col-span-2">
+      {customQuestions.map(([key, prompt]) => (
+        <label key={key} className="block text-white text-sm font-medium">
+          {formatQuestionText(prompt)}
+          <textarea
+            name={`customQuestion_${key}`}
+            value={formData.customAnswers[key] ?? ''}
+            onChange={handleInputChange}
+            rows={4}
+            className="mt-2 w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white resize-none focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
+          />
+        </label>
+      ))}
+    </div>
+  ) : null;
 
   const commonFields = (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div>
+      <div className={!hasQuestion(applicationType === 'delegation' ? 'schoolName' : 'fullName') ? 'hidden' : ''}>
         <label className="block text-white text-sm font-medium mb-2">
           {applicationType === 'delegation'
             ? questions.schoolName
@@ -436,13 +487,13 @@ const ApplicationForm = ({
           }
           onChange={handleInputChange}
           className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
-          required
+          required={hasQuestion(applicationType === 'delegation' ? 'schoolName' : 'fullName')}
         />
       </div>
 
       {applicationType !== 'delegation' && (
         <>
-          <div>
+          <div className={!hasQuestion('birthDate') ? 'hidden' : ''}>
             <label className="block text-white text-sm font-medium mb-2">
               {questions.birthDate}
             </label>
@@ -452,10 +503,10 @@ const ApplicationForm = ({
               value={formData.birthDate}
               onChange={handleInputChange}
               className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
-              required
+              required={hasQuestion('birthDate')}
             />
           </div>
-          <div>
+          <div className={!hasQuestion('phoneNumber') ? 'hidden' : ''}>
             <label className="block text-white text-sm font-medium mb-2">
               {questions.phoneNumber}
             </label>
@@ -465,13 +516,13 @@ const ApplicationForm = ({
               value={formData.phoneNumber}
               onChange={handleInputChange}
               className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
-              required
+              required={hasQuestion('phoneNumber')}
             />
           </div>
         </>
       )}
 
-      <div>
+      <div className={!hasQuestion(applicationType === 'delegation' ? 'contactEmail' : 'email') ? 'hidden' : ''}>
         <label className="block text-white text-sm font-medium mb-2">
           {applicationType === 'delegation'
             ? questions.contactEmail
@@ -483,13 +534,13 @@ const ApplicationForm = ({
           value={formData.email}
           onChange={handleInputChange}
           className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
-          required
+          required={hasQuestion(applicationType === 'delegation' ? 'contactEmail' : 'email')}
         />
       </div>
 
       {applicationType !== 'delegation' && (
         <>
-          <div>
+          <div className={!hasQuestion('nationalId') ? 'hidden' : ''}>
             <label className="block text-white text-sm font-medium mb-2">
               {questions.nationalId}
             </label>
@@ -499,10 +550,10 @@ const ApplicationForm = ({
               value={formData.nationalId}
               onChange={handleInputChange}
               className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
-              required
+              required={hasQuestion('nationalId')}
             />
           </div>
-          <div>
+          <div className={!hasQuestion('gender') ? 'hidden' : ''}>
             <label className="block text-white text-sm font-medium mb-2">
               {questions.gender}
             </label>
@@ -511,7 +562,7 @@ const ApplicationForm = ({
               value={formData.gender}
               onChange={handleInputChange}
               className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
-              required
+              required={hasQuestion('gender')}
             >
               <option value="">{FORM.placeholders.selectGender}</option>
               {FORM.options.gender.map((option) => (
@@ -521,7 +572,7 @@ const ApplicationForm = ({
               ))}
             </select>
           </div>
-          <div>
+          <div className={!hasQuestion('school') ? 'hidden' : ''}>
             <label className="block text-white text-sm font-medium mb-2">
               {questions.school}
             </label>
@@ -531,10 +582,10 @@ const ApplicationForm = ({
               value={formData.school}
               onChange={handleInputChange}
               className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
-              required
+              required={hasQuestion('school')}
             />
           </div>
-          <div>
+          <div className={!hasQuestion('grade') ? 'hidden' : ''}>
             <label className="block text-white text-sm font-medium mb-2">
               {questions.grade}
             </label>
@@ -543,7 +594,7 @@ const ApplicationForm = ({
               value={formData.grade}
               onChange={handleInputChange}
               className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
-              required
+              required={hasQuestion('grade')}
             >
               <option value="">{FORM.placeholders.selectGrade}</option>
               {FORM.options.grade.map((option) => (
@@ -553,7 +604,7 @@ const ApplicationForm = ({
               ))}
             </select>
           </div>
-          <div>
+          <div className={!hasQuestion('city') ? 'hidden' : ''}>
             <label className="block text-white text-sm font-medium mb-2">
               {questions.city}
             </label>
@@ -563,7 +614,7 @@ const ApplicationForm = ({
               value={formData.city}
               onChange={handleInputChange}
               className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
-              required
+              required={hasQuestion('city')}
             />
           </div>
         </>
@@ -581,9 +632,9 @@ const ApplicationForm = ({
 
   const detailFields = (
     <div className="space-y-6">
-      <div>
+      <div className={!hasQuestion('motivationLetter') ? 'hidden' : ''}>
         <label className="block text-white text-sm font-medium mb-2">
-          {formatFormText(questions.motivationLetter)}
+          {formatQuestionText(questions.motivationLetter)}
         </label>
         <textarea
           name="motivationLetter"
@@ -591,20 +642,20 @@ const ApplicationForm = ({
           onChange={handleInputChange}
           rows={5}
           className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white resize-none focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
-          required
+          required={hasQuestion('motivationLetter')}
         />
         <p
           className={`text-sm mt-1 text-left ${
-            getWordCount(formData.motivationLetter) >= FORM.minimumMotivationWords
+            getWordCount(formData.motivationLetter) >= rules.minimumMotivationWords
               ? 'text-green-500'
               : 'text-red-500'
           }`}
         >
-          {getWordCount(formData.motivationLetter)} / {FORM.minimumMotivationWords} words
+          {getWordCount(formData.motivationLetter)} / {rules.minimumMotivationWords} words
         </p>
       </div>
 
-      <div>
+      <div className={!hasQuestion('experience') ? 'hidden' : ''}>
         <label className="block text-white text-sm font-medium mb-2">
           {questions.experience}
         </label>
@@ -619,12 +670,12 @@ const ApplicationForm = ({
 
       {(applicationType === 'delegate' || applicationType === 'chair') && (
         <>
-          <div>
+          <div className={!hasQuestion('committeePreferences') ? 'hidden' : ''}>
             <label className="block text-white text-sm font-medium mb-2">
-              {formatFormText(questions.committeePreferences)}
+              {formatQuestionText(questions.committeePreferences)}
             </label>
             <div className="space-y-3">
-              {Array.from({ length: FORM.committeePreferenceCount }, (_, idx) => idx).map((idx) => (
+              {Array.from({ length: rules.committeePreferenceCount }, (_, idx) => idx).map((idx) => (
                 <select
                   key={idx}
                   value={formData.committeePreferences[idx]}
@@ -632,10 +683,10 @@ const ApplicationForm = ({
                     handleCommitteeChange(idx, e.target.value)
                   }
                   className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
-                  required={idx === 0}
+                  required={idx === 0 && hasQuestion('committeePreferences')}
                 >
                   <option value="">
-                    {formatFormText(questions.choice, { number: idx + 1 })}
+                    {formatQuestionText(questions.choice, { number: idx + 1 })}
                   </option>
                   {COMMITTEES.map((c) => (
                     <option key={c} value={c}>
@@ -649,7 +700,7 @@ const ApplicationForm = ({
 
           {applicationType === 'chair' ? (
             <div className="space-y-6">
-              <div>
+              <div className={!hasQuestion('chairAnswer1') ? 'hidden' : ''}>
                 <label className="block text-white text-sm font-medium mb-2">
                   {questions.chairAnswer1}
                 </label>
@@ -661,7 +712,7 @@ const ApplicationForm = ({
                   rows={4}
                 />
               </div>
-              <div>
+              <div className={!hasQuestion('chairAnswer3') ? 'hidden' : ''}>
                 <label className="block text-white text-sm font-medium mb-2">
                   {questions.chairAnswer3}
                 </label>
@@ -673,7 +724,7 @@ const ApplicationForm = ({
                   rows={4}
                 />
               </div>
-              <div>
+              <div className={!hasQuestion('chairAnswer2') ? 'hidden' : ''}>
                 <label className="block text-white text-sm font-medium mb-2">
                   {questions.chairAnswer2}
                 </label>
@@ -687,7 +738,7 @@ const ApplicationForm = ({
               </div>
             </div>
           ) : (
-            <div>
+            <div className={!hasQuestion('englishLevel') ? 'hidden' : ''}>
               <label className="block text-white text-sm font-medium mb-2">
                 {questions.englishLevel}
               </label>
@@ -696,7 +747,7 @@ const ApplicationForm = ({
                 value={formData.englishLevel}
                 onChange={handleInputChange}
                 className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
-                required
+                 required={hasQuestion('englishLevel')}
               >
                 <option value="">{FORM.placeholders.selectEnglishLevel}</option>
                 {FORM.options.englishLevel.map((option) => (
@@ -711,7 +762,7 @@ const ApplicationForm = ({
       )}
 
       {applicationType === 'press' && (
-        <div>
+        <div className={!hasQuestion('camera') ? 'hidden' : ''}>
           <label className="block text-white text-sm font-medium mb-2">
             {questions.camera}
           </label>
@@ -724,7 +775,7 @@ const ApplicationForm = ({
         </div>
       )}
 
-      <div>
+      <div className={!hasQuestion('dietaryPreferences') ? 'hidden' : ''}>
         <label className="block text-white text-sm font-medium mb-2">
           {questions.dietaryPreferences}
         </label>
@@ -743,7 +794,7 @@ const ApplicationForm = ({
         </select>
       </div>
 
-      <div>
+      <div className={!hasQuestion('additionalInfo') ? 'hidden' : ''}>
         <label className="block text-white text-sm font-medium mb-2">
           {questions.additionalInfo}
         </label>
@@ -755,6 +806,7 @@ const ApplicationForm = ({
           className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white resize-none focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
         />
       </div>
+      {customQuestionFields}
     </div>
   );
 
@@ -777,18 +829,18 @@ const ApplicationForm = ({
             {commonFields}
 
             {applicationType === 'delegation' && (
-              <div className="mt-6">
+            <div className={!hasQuestion('numberOfDelegates') ? 'hidden' : 'mt-6'}>
                 <label className="block text-white text-sm font-medium mb-2">
-                  {formatFormText(questions.numberOfDelegates)}
+                  {formatQuestionText(questions.numberOfDelegates)}
                 </label>
                 <input
                   type="number"
                   name="numberOfDelegates"
                   value={formData.numberOfDelegates}
                   onChange={handleInputChange}
-                  min={FORM.minimumDelegates}
+                  min={rules.minimumDelegates}
                   className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
-                  required
+                   required={hasQuestion('numberOfDelegates')}
                 />
                 <button
                   type="button"
@@ -799,6 +851,7 @@ const ApplicationForm = ({
                 </button>
               </div>
             )}
+            {applicationType === 'delegation' && customQuestionFields}
           </div>
 
           {applicationType !== 'delegation' && (
@@ -819,7 +872,7 @@ const ApplicationForm = ({
                   className="bg-gray-800 rounded-xl p-8 shadow-xl border-l-4 border-[var(--color-accent)]"
                 >
                   <h3 className="text-xl font-bold text-white mb-6">
-                    {formatFormText(questions.delegate, { number: i + 1 })}
+                    {formatQuestionText(questions.delegate, { number: i + 1 })}
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <input
@@ -832,8 +885,8 @@ const ApplicationForm = ({
                           e.target.value
                         )
                       }
-                      className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
-                      required
+                       className={`w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all ${!hasQuestion('delegateFullName') ? 'hidden' : ''}`}
+                       required={hasQuestion('delegateFullName')}
                     />
                     <input
                       placeholder={questions.delegateEmail}
@@ -846,8 +899,8 @@ const ApplicationForm = ({
                           e.target.value
                         )
                       }
-                      className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
-                      required
+                       className={`w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all ${!hasQuestion('delegateEmail') ? 'hidden' : ''}`}
+                       required={hasQuestion('delegateEmail')}
                     />
                     <input
                       placeholder={questions.delegatePhoneNumber}
@@ -860,8 +913,8 @@ const ApplicationForm = ({
                           e.target.value
                         )
                       }
-                      className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
-                      required
+                       className={`w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all ${!hasQuestion('delegatePhoneNumber') ? 'hidden' : ''}`}
+                       required={hasQuestion('delegatePhoneNumber')}
                     />
                     <input
                       placeholder={questions.delegateNationalId}
@@ -873,8 +926,8 @@ const ApplicationForm = ({
                           e.target.value
                         )
                       }
-                      className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
-                      required
+                       className={`w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all ${!hasQuestion('delegateNationalId') ? 'hidden' : ''}`}
+                       required={hasQuestion('delegateNationalId')}
                     />
                     <input
                       placeholder={questions.delegateBirthDate}
@@ -887,8 +940,8 @@ const ApplicationForm = ({
                           e.target.value
                         )
                       }
-                      className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
-                      required
+                       className={`w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all ${!hasQuestion('delegateBirthDate') ? 'hidden' : ''}`}
+                       required={hasQuestion('delegateBirthDate')}
                     />
 
                     <select
@@ -900,8 +953,8 @@ const ApplicationForm = ({
                           e.target.value
                         )
                       }
-                      className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
-                      required
+                      className={`w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all ${!hasQuestion('delegateGender') ? 'hidden' : ''}`}
+                      required={hasQuestion('delegateGender')}
                     >
                       <option value="">{FORM.placeholders.selectGenderRequired}</option>
                       {FORM.options.gender.map((option) => (
@@ -919,8 +972,8 @@ const ApplicationForm = ({
                           e.target.value
                         )
                       }
-                      className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
-                      required
+                      className={`w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all ${!hasQuestion('delegateGrade') ? 'hidden' : ''}`}
+                      required={hasQuestion('delegateGrade')}
                     >
                       <option value="">{FORM.placeholders.selectGradeRequired}</option>
                       {FORM.options.grade.map((option) => (
@@ -939,15 +992,15 @@ const ApplicationForm = ({
                           e.target.value
                         )
                       }
-                      className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
-                      required
+                       className={`w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all ${!hasQuestion('delegateCity') ? 'hidden' : ''}`}
+                       required={hasQuestion('delegateCity')}
                     />
 
-                    <div className="md:col-span-2 space-y-2">
+                    <div className={`md:col-span-2 space-y-2 ${!hasQuestion('delegateCommitteePreferences') ? 'hidden' : ''}`}>
                       <label className="text-white text-sm">
                         {questions.delegateCommitteePreferences}
                       </label>
-                      {Array.from({ length: FORM.committeePreferenceCount }, (_, idx) => idx).map((idx) => (
+                      {Array.from({ length: rules.committeePreferenceCount }, (_, idx) => idx).map((idx) => (
                         <select
                           key={idx}
                           value={
@@ -961,10 +1014,10 @@ const ApplicationForm = ({
                             )
                           }
                           className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
-                          required={idx === 0}
+                          required={idx === 0 && hasQuestion('delegateCommitteePreferences')}
                         >
                           <option value="">
-                            {formatFormText(questions.choice, { number: idx + 1 })}
+                            {formatQuestionText(questions.choice, { number: idx + 1 })}
                           </option>
                           {COMMITTEES.map((c) => (
                             <option key={c} value={c}>
@@ -983,8 +1036,8 @@ const ApplicationForm = ({
                           e.target.value
                         )
                       }
-                      className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
-                      required
+                      className={`w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all ${!hasQuestion('delegateEnglishLevel') ? 'hidden' : ''}`}
+                      required={hasQuestion('delegateEnglishLevel')}
                     >
                       <option value="">{questions.delegateEnglishLevel}</option>
                       {FORM.options.englishLevel.map((option) => (
@@ -1002,7 +1055,7 @@ const ApplicationForm = ({
                           e.target.value
                         )
                       }
-                      className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
+                      className={`${!hasQuestion('delegateDietaryPreferences') ? 'hidden' : ''} w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all`}
                     >
                       <option value="">{questions.delegateDietaryPreferences}</option>
                       {FORM.options.dietaryPreferences.map((option) => (
@@ -1012,7 +1065,7 @@ const ApplicationForm = ({
                       ))}
                     </select>
 
-                    <div className="md:col-span-2">
+                     <div className={`md:col-span-2 ${!hasQuestion('delegateExperience') ? 'hidden' : ''}`}>
                       <textarea
                         placeholder={questions.delegateExperience}
                         value={d.experience}
@@ -1027,9 +1080,9 @@ const ApplicationForm = ({
                         rows={3}
                       />
                     </div>
-                    <div className="md:col-span-2">
+                     <div className={`md:col-span-2 ${!hasQuestion('delegateMotivationLetter') ? 'hidden' : ''}`}>
                       <label className="block text-white text-sm font-medium mb-1">
-                        {formatFormText(questions.delegateMotivationLetter)}
+                        {formatQuestionText(questions.delegateMotivationLetter)}
                       </label>
                       <textarea
                         placeholder={questions.delegateMotivationLetterPlaceholder}
@@ -1043,16 +1096,16 @@ const ApplicationForm = ({
                         }
                         className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white resize-none focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
                         rows={4}
-                        required
+                       required={hasQuestion('delegateMotivationLetter')}
                       />
                       <p
                         className={`text-sm mt-1 text-left ${
-                          getWordCount(d.motivationLetter) >= FORM.minimumMotivationWords
+                          getWordCount(d.motivationLetter) >= rules.minimumMotivationWords
                             ? 'text-green-500'
                             : 'text-red-500'
                         }`}
                       >
-                        {getWordCount(d.motivationLetter)} / {FORM.minimumMotivationWords} words
+                        {getWordCount(d.motivationLetter)} / {rules.minimumMotivationWords} words
                       </p>
                     </div>
                     <textarea
@@ -1065,7 +1118,7 @@ const ApplicationForm = ({
                           e.target.value
                         )
                       }
-                      className="md:col-span-2 w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white resize-none focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all"
+                       className={`md:col-span-2 w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white resize-none focus:outline-none focus:ring-2 focus:border-[var(--color-accent)] transition-all ${!hasQuestion('delegateAdditionalInfo') ? 'hidden' : ''}`}
                       rows={2}
                     />
                   </div>

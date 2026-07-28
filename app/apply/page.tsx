@@ -3,7 +3,8 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import { APPLICATIONS, CONFERENCE, COPY, formatConferenceText } from '@/lib/conference';
+import { CONFERENCE, COPY, formatConferenceText } from '@/lib/conference';
+import { getSiteSettings } from '@/lib/siteSettings';
 
 export const metadata: Metadata = {
   title: "Apply",
@@ -12,7 +13,9 @@ export const metadata: Metadata = {
   }),
 };
 
-const Apply = () => {
+const Apply = async () => {
+  const settings = await getSiteSettings();
+
   return (
     <div className="min-h-screen py-20 px-4">
       <div className="max-w-7xl mx-auto">
@@ -21,7 +24,7 @@ const Apply = () => {
         </h1>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 place-items-center">
-          {APPLICATIONS.filter((app) => app.enabled).map((app) => (
+          {settings.applications.filter((app) => app.enabled).map((app) => (
             <Link
               key={app.id}
               href={`/apply/${app.id}`}
@@ -31,7 +34,7 @@ const Apply = () => {
               {/* Background Image */}
               <div className="relative h-[400px] w-full">
                 <Image
-                  src={app.image}
+                  src={app.image ?? '/applications/delegate.webp'}
                   alt={`Apply ${app.title}`}
                   fill
                   className="object-cover transition-transform duration-700 group-hover:scale-110"
