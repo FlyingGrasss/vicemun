@@ -113,7 +113,7 @@ const BackgroundAnimations = () => {
     };
   }, []);
 
-  return <div ref={containerRef} className="fixed inset-0 overflow-hidden pointer-events-none z-0" />;
+  return <div ref={containerRef} className="fixed inset-x-0 top-0 bottom-auto h-screen max-sm:h-[125vh] overflow-hidden pointer-events-none z-0" />;
 };
 
 export default BackgroundAnimations;
