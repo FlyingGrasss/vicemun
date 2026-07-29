@@ -90,7 +90,6 @@
     }
   ],
   "form": {
-    "minimumMotivationWords": 150,
     "minimumDelegates": 8,
     "committeePreferenceCount": 3,
     "committees": [
@@ -118,7 +117,7 @@
         { "id": "choice2", "label": "2. Choice", "type": "dropdown", "required": false, "options": ["H-JCC", "F-European Parliament", "British Commonwealth Of 1949", "INTERPOL", "UNPEACE", "DISEC", "WHO"] },
         { "id": "choice3", "label": "3. Choice", "type": "dropdown", "required": false, "options": ["H-JCC", "F-European Parliament", "British Commonwealth Of 1949", "INTERPOL", "UNPEACE", "DISEC", "WHO"] },
         { "id": "experience", "label": "Experience", "type": "longText", "required": false },
-        { "id": "motivationLetter", "label": "Motivation Letter", "type": "longText", "required": true },
+        { "id": "motivationLetter", "label": "Motivation Letter", "type": "longText", "required": true, "minWords": 150 },
         { "id": "dietaryPreferences", "label": "Dietary Preferences", "type": "dropdown", "required": false, "options": ["Vegetarian", "Vegan", "Halal", "Kosher", "Gluten-free", "Dairy-free"] },
         { "id": "additionalInfo", "label": "Anything you would like to add?", "type": "longText", "required": false }
       ],
@@ -137,7 +136,7 @@
         { "id": "choice2", "label": "2. Choice", "type": "dropdown", "required": false, "options": ["H-JCC", "F-European Parliament", "British Commonwealth Of 1949", "INTERPOL", "UNPEACE", "DISEC", "WHO"] },
         { "id": "choice3", "label": "3. Choice", "type": "dropdown", "required": false, "options": ["H-JCC", "F-European Parliament", "British Commonwealth Of 1949", "INTERPOL", "UNPEACE", "DISEC", "WHO"] },
         { "id": "experience", "label": "Experience", "type": "longText", "required": false },
-        { "id": "motivationLetter", "label": "Motivation Letter", "type": "longText", "required": true },
+        { "id": "motivationLetter", "label": "Motivation Letter", "type": "longText", "required": true, "minWords": 150 },
         { "id": "chairAnswer1", "label": "GA Resolution Papers Question", "type": "longText", "required": false },
         { "id": "chairAnswer3", "label": "Crisis Directive Question", "type": "longText", "required": false },
         { "id": "chairAnswer2", "label": "Regular Committee Motions Question", "type": "longText", "required": false },
@@ -162,7 +161,7 @@
         { "id": "delegateCity", "label": "City", "type": "shortText", "required": true },
         { "id": "delegateGrade", "label": "Grade/Level", "type": "dropdown", "required": true, "options": ["Preparation Grade", "9th Grade", "10th Grade", "11th Grade", "12th Grade", "Graduate"] },
         { "id": "delegateExperience", "label": "Experience", "type": "longText", "required": false },
-        { "id": "delegateMotivationLetter", "label": "Motivation Letter", "type": "longText", "required": true },
+        { "id": "delegateMotivationLetter", "label": "Motivation Letter", "type": "longText", "required": true, "minWords": 150 },
         { "id": "delegateAdditionalInfo", "label": "Anything you would like to add?", "type": "longText", "required": false }
       ],
       "press": [
@@ -176,7 +175,7 @@
         { "id": "city", "label": "City", "type": "shortText", "required": true },
         { "id": "grade", "label": "Grade/Level", "type": "dropdown", "required": true, "options": ["Preparation Grade", "9th Grade", "10th Grade", "11th Grade", "12th Grade", "Graduate"] },
         { "id": "experience", "label": "Experience", "type": "longText", "required": false },
-        { "id": "motivationLetter", "label": "Motivation Letter", "type": "longText", "required": true },
+        { "id": "motivationLetter", "label": "Motivation Letter", "type": "longText", "required": true, "minWords": 150 },
         { "id": "camera", "label": "Camera Model", "type": "shortText", "required": false },
         { "id": "dietaryPreferences", "label": "Dietary Preferences", "type": "dropdown", "required": false, "options": ["Vegetarian", "Vegan", "Halal", "Kosher", "Gluten-free", "Dairy-free"] },
         { "id": "additionalInfo", "label": "Anything you would like to add?", "type": "longText", "required": false }
@@ -192,7 +191,7 @@
         { "id": "city", "label": "City", "type": "shortText", "required": true },
         { "id": "grade", "label": "Grade/Level", "type": "dropdown", "required": true, "options": ["Preparation Grade", "9th Grade", "10th Grade", "11th Grade", "12th Grade", "Graduate"] },
         { "id": "experience", "label": "Experience", "type": "longText", "required": false },
-        { "id": "motivationLetter", "label": "Motivation Letter", "type": "longText", "required": true },
+        { "id": "motivationLetter", "label": "Motivation Letter", "type": "longText", "required": true, "minWords": 150 },
         { "id": "dietaryPreferences", "label": "Dietary Preferences", "type": "dropdown", "required": false, "options": ["Vegetarian", "Vegan", "Halal", "Kosher", "Gluten-free", "Dairy-free"] },
         { "id": "additionalInfo", "label": "Anything you would like to add?", "type": "longText", "required": false }
       ]
@@ -247,8 +246,8 @@
     },
     "messages": {
       "minimumDelegates": "Minimum number of delegates is {minimumDelegates}",
-      "motivationTooShort": "Motivation letter must be at least {minimumMotivationWords} words.",
-      "delegateMotivationTooShort": "Delegate #{number}'s motivation letter must be at least {minimumMotivationWords} words.",
+      "motivationTooShort": "Motivation letter must be at least {minimumWords} words.",
+      "delegateMotivationTooShort": "Delegate #{number}'s motivation letter must be at least {minimumWords} words.",
       "verificationSent": "We've sent a verification code to",
       "selectNone": "None",
       "responses": {
