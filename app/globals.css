@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "lenis/dist/lenis.css";
 
 :root {
   --background: #000;
@@ -19,6 +20,17 @@ body {
   position: relative;
   isolation: isolate;
   background: var(--background);
+  color: var(--foreground);
+}
+
+select option {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+select option:checked,
+select option:hover {
+  background-color: var(--color-middle);
   color: var(--foreground);
 }
 /* app/globals.css - Final styles */

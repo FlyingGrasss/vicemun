@@ -23,13 +23,14 @@ After logging in at `/admin`, administrators can:
 - edit each application card/form title and description
 - enable or disable each application type; disabled types disappear from `/apply` and reject direct form/API requests
 - edit the existing labels and prompts for every delegate, chair, delegation, press, and admin question
+- set optional minimum word and character limits for questions; use `0` to leave a limit disabled
 - edit the Letters page title, opening, and paragraphs
 
-Conference settings are stored in the `ConferenceSettings` database table. If the table is unavailable, the site falls back to `config/conference.json`. Editing question wording does not add new form fields; new fields still require a code/API change.
+Conference settings are stored in the `ConferenceSettings` database table. If the table is unavailable, the site falls back to `config/conference.json`. Application questions are ordered arrays of explicit question objects with an `id`, label, type, required flag, placeholder, and dropdown options. The admin panel can add, remove, edit, and reorder supported question types without code changes.
 
 ## Environment variables
 
-Copy `.env.example` to `.env.local` and fill in the values. It documents every variable used by the app without including secrets. `NEXT_PUBLIC_SITE_URL` is the only conference URL override; the default is the URL in `conference.json`.
+Copy `.env.example` to `.env.local` and fill in the values. It documents every variable used by the app without including secrets. `NEXT_PUBLIC_SITE_URL` is the conference URL override; the default is the URL in `conference.json`. Set `GOOGLE_SITE_VERIFICATION` only when Google Search Console gives you a verification token for the deployment.
 
 ## Development
 
@@ -57,13 +58,13 @@ The application API writes columns in fixed orders. To create a sheet header qui
 ### Delegate
 
 ```text
-Full Name	E-mail	Phone	National ID	Birth Date	Gender	School	City	Grade	English Level	1. Committee	2. Committee	3. Committee	Experience	Motivation Letter	Dietary Preferences	Other Info
+Full Name	Email Address	Phone Number	National ID	Birth Date	Gender	School Name	City	Grade/Level	English Level	1. Choice	2. Choice	3. Choice	Experience	Motivation Letter (Min 150 Words)	Dietary Preferences	Anything you would like to add?
 ```
 
 ### Chair
 
 ```text
-Full Name	E-mail	Phone	National ID	Birth Date	Gender	School	City	Grade	English Level	1. Committee	2. Committee	3. Committee	Experience	Motivation Letter	GA Resolution Papers Question	Crisis Directive Question	Regular Committee Motions Question	Dietary Preferences	Other Info
+Full Name	Email Address	Phone Number	National ID	Birth Date	Gender	School Name	City	Grade/Level	English Level	1. Choice	2. Choice	3. Choice	Experience	Motivation Letter (Min 150 Words)	GA Resolution Papers Question	Crisis Directive Question	Regular Committee Motions Question	Dietary Preferences	Anything you would like to add?
 ```
 
 ### Delegation
@@ -71,17 +72,17 @@ Full Name	E-mail	Phone	National ID	Birth Date	Gender	School	City	Grade	English L
 Delegation submissions write one summary row and then one row per delegate. The slash in this header separates the summary-row value from the delegate-row value for columns that share the same position. Paste this single line into `A1`.
 
 ```text
-School Name / Delegate Full Name	Delegate Count / Birth Date	Advisor/delegation E-mail / National ID	Gender	1. Committee	2. Committee	3. Committee	English Level	Dietary Preferences	E-mail	Phone Number	City	Grade	Experience	Motivation Letter	Other Info
+School or Organization / Delegate Full Name	Number of Delegates / Birth Date	Advisor/Delegation Email / National ID	Gender	1. Choice	2. Choice	3. Choice	English Level	Dietary Preferences	Delegate Email	Delegate Phone	City	Grade/Level	Experience	Motivation Letter (Min 150 Words)	Anything you would like to add?
 ```
 
 ### Press
 
 ```text
-Full Name	E-mail	Phone	National ID	Birth Date	Gender	School	City	Grade	Experience	Motivation Letter	Camera Model	Dietary Preferences	Other Info
+Full Name	Email Address	Phone Number	National ID	Birth Date	Gender	School Name	City	Grade/Level	Experience	Motivation Letter (Min 150 Words)	Camera Model	Dietary Preferences	Anything you would like to add?
 ```
 
 ### Admin
 
 ```text
-Full Name	E-mail	Phone	National ID	Birth Date	Gender	School	City	Grade	Experience	Motivation Letter	Dietary Preferences	Other Info
+Full Name	Email Address	Phone Number	National ID	Birth Date	Gender	School Name	City	Grade/Level	Experience	Motivation Letter (Min 150 Words)	Dietary Preferences	Anything you would like to add?
 ```

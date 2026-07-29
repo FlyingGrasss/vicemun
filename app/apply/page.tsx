@@ -3,15 +3,17 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import { CONFERENCE, COPY, formatConferenceText } from '@/lib/conference';
+import { COPY, formatConferenceText } from '@/lib/conference';
 import { getSiteSettings } from '@/lib/siteSettings';
 
-export const metadata: Metadata = {
-  title: "Apply",
-  description: formatConferenceText(COPY.metadata.applyDescription, {
-    shortName: CONFERENCE.shortName,
-  }),
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { conference } = await getSiteSettings();
+  return {
+    title: "Apply",
+    description: formatConferenceText(COPY.metadata.applyDescription, { shortName: conference.shortName }),
+    alternates: { canonical: "/apply" },
+  };
+}
 
 const Apply = async () => {
   const settings = await getSiteSettings();
