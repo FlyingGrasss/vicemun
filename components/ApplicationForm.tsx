@@ -525,9 +525,9 @@ const ApplicationForm = ({
     const inputType = question.type === 'date' || question.type === 'number' || question.type === 'phone' ? question.type : 'text';
     return <input name={name} type={inputType === 'phone' ? 'tel' : inputType} value={value} onChange={onChange} placeholder={question.placeholder || undefined} min={question.id === 'magnificentCenturyKnowledge' ? 0 : undefined} max={question.id === 'magnificentCenturyKnowledge' ? 10 : undefined} minLength={inputType === 'text' || inputType === 'phone' ? question.minCharacters || undefined : undefined} required={question.required} className={controlClass} />;
   };
-  const customQuestionFields = customQuestions.length > 0 ? (
+  const renderCustomQuestionFields = (questionsToRender: QuestionDefinition[]) => questionsToRender.length > 0 ? (
     <div className="space-y-4 md:col-span-2">
-      {customQuestions.map((question) => (
+      {questionsToRender.map((question) => (
         <label key={question.id} className="block text-white text-sm font-medium">
           {renderQuestionLabel(question.id, question.label)}
           {renderCustomControl(question.id, question)}
@@ -535,6 +535,8 @@ const ApplicationForm = ({
       ))}
     </div>
   ) : null;
+  const magnificentCenturyQuestionFields = renderCustomQuestionFields(customQuestions.filter((question) => question.id === 'magnificentCenturyKnowledge'));
+  const customQuestionFields = renderCustomQuestionFields(customQuestions.filter((question) => question.id !== 'magnificentCenturyKnowledge'));
 
   const commonFields = (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -749,7 +751,7 @@ const ApplicationForm = ({
             <div className="space-y-3">
               {Array.from({ length: rules.committeePreferenceCount }, (_, idx) => idx).map((idx) => (
                 <label key={idx} className="block text-white text-sm font-medium">
-                  {renderQuestionLabel(`choice${idx + 1}`, `${idx + 1}. Choice`)}
+                  {renderQuestionLabel(`choice${idx + 1}`, `${idx + 1}. Committee Choice`)}
                 <select
                   value={formData.committeePreferences[idx]}
                   onChange={(e) =>
@@ -759,7 +761,7 @@ const ApplicationForm = ({
                   required={Boolean(getChoiceQuestion(idx)?.required)}
                 >
                   <option value="">
-                    {getChoiceQuestion(idx)?.label || `${idx + 1}. Choice`}
+                    {getChoiceQuestion(idx)?.label || `${idx + 1}. Committee Choice`}
                   </option>
                   {committeeOptions.map((c) => (
                     <option key={c} value={c}>
@@ -771,6 +773,8 @@ const ApplicationForm = ({
               ))}
             </div>
           </div>
+
+          {magnificentCenturyQuestionFields}
 
           {applicationType === 'chair' ? (
             <div className="space-y-6">
@@ -1096,7 +1100,7 @@ const ApplicationForm = ({
                     <div className={`md:col-span-2 space-y-2 ${!hasCommitteeChoices ? 'hidden' : ''}`}>
                       {Array.from({ length: rules.committeePreferenceCount }, (_, idx) => idx).map((idx) => (
                         <label key={idx} className="block text-white text-sm font-medium">
-                          {renderQuestionLabel(`choice${idx + 1}`, `${idx + 1}. Choice`)}
+                          {renderQuestionLabel(`choice${idx + 1}`, `${idx + 1}. Committee Choice`)}
                         <select
                           value={
                             d.committeePreferences[idx]
@@ -1112,7 +1116,7 @@ const ApplicationForm = ({
                           required={Boolean(getChoiceQuestion(idx)?.required)}
                         >
                           <option value="">
-                            {getChoiceQuestion(idx)?.label || `${idx + 1}. Choice`}
+                            {getChoiceQuestion(idx)?.label || `${idx + 1}. Committee Choice`}
                           </option>
                           {committeeOptions.map((c) => (
                             <option key={c} value={c}>

@@ -58,13 +58,13 @@ The application API writes columns in fixed orders. To create a sheet header qui
 ### Delegate
 
 ```text
-Full Name	Email Address	Phone Number	National ID	Birth Date	Gender	School Name	City	Grade/Level	English Level	1. Choice	2. Choice	3. Choice	Experience	Motivation Letter	Dietary Preferences	Anything you would like to add?
+Full Name	Email Address	Phone Number	National ID	Birth Date	Gender	School Name	City	Grade/Level	English Level	1. Committee Choice	2. Committee Choice	3. Committee Choice	Experience	Motivation Letter	Dietary Preferences	Anything you would like to add?
 ```
 
 ### Chair
 
 ```text
-Full Name	Email Address	Phone Number	National ID	Birth Date	Gender	School Name	City	Grade/Level	English Level	1. Choice	2. Choice	3. Choice	Experience	Motivation Letter	GA Resolution Papers Question	Crisis Directive Question	Regular Committee Motions Question	Dietary Preferences	Anything you would like to add?
+Full Name	Email Address	Phone Number	National ID	Birth Date	Gender	School Name	City	Grade/Level	English Level	1. Committee Choice	2. Committee Choice	3. Committee Choice	Experience	Motivation Letter	GA Resolution Papers Question	Crisis Directive Question	Regular Committee Motions Question	Dietary Preferences	Anything you would like to add?
 ```
 
 ### Delegation
@@ -72,7 +72,7 @@ Full Name	Email Address	Phone Number	National ID	Birth Date	Gender	School Name	C
 Delegation submissions write one summary row and then one row per delegate. The slash in this header separates the summary-row value from the delegate-row value for columns that share the same position. Paste this single line into `A1`.
 
 ```text
-School or Organization / Delegate Full Name	Number of Delegates / Birth Date	Advisor/Delegation Email / National ID	Gender	1. Choice	2. Choice	3. Choice	English Level	Dietary Preferences	Delegate Email	Delegate Phone	City	Grade/Level	Experience	Motivation Letter	Anything you would like to add?
+School or Organization / Delegate Full Name	Number of Delegates / Birth Date	Advisor/Delegation Email / National ID	Gender	1. Committee Choice	2. Committee Choice	3. Committee Choice	English Level	Dietary Preferences	Delegate Email	Delegate Phone	City	Grade/Level	Experience	Motivation Letter	Anything you would like to add?
 ```
 
 ### Press
