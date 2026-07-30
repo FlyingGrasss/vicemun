@@ -289,12 +289,17 @@
       "documentsTitle": "Study Guides & Documents"
     },
     "letters": {
-      "titlePrefix": "Letter From The",
-      "titleHighlight": "Secretary General",
-      "opening": "Dear Participants",
-      "paragraphs": [
-        "It is a great pleasure to invite you to {sessionName}. On {dates}, delegates will come together to debate, negotiate, and approach global issues through diplomacy and critical thinking.",
-        "Our team is preparing {shortName} with the goal of creating a serious, welcoming, and memorable Model United Nations experience. We look forward to seeing thoughtful debate, strong research, and wise minds in every committee."
+      "entries": [
+        {
+          "id": "secretary-general",
+          "titlePrefix": "Letter From The",
+          "titleHighlight": "Secretary General",
+          "opening": "Dear Participants",
+          "paragraphs": [
+            "It is a great pleasure to invite you to {sessionName}. On {dates}, delegates will come together to debate, negotiate, and approach global issues through diplomacy and critical thinking.",
+            "Our team is preparing {shortName} with the goal of creating a serious, welcoming, and memorable Model United Nations experience. We look forward to seeing thoughtful debate, strong research, and wise minds in every committee."
+          ]
+        }
       ]
     },
     "footer": {
